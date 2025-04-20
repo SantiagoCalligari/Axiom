@@ -16,6 +16,8 @@ class RoleSeeder extends Seeder
         ]);
         $admin_role->givePermissionTo('store universities');
         $admin_role->givePermissionTo('store careers');
+        $admin_role->givePermissionTo('store exams');
+        $admin_role->givePermissionTo('modify roles');
 
         $teacher_role = Role::query()->create([
             'name' => 'teacher',
