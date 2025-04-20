@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class University extends Model
 {
@@ -11,8 +12,21 @@ class University extends Model
 
     protected $fillable = ['name', 'slug', 'description'];
 
-    public function careers()
+    protected static function boot():void
     {
-        return $this->hasMany(Career::class);
+        parent::boot();
+
+        // Listen for the 'creating' event to set the slug on initial creation
+        static::creating(function ($model) {
+            $model->slug = Str::slug($model->name);
+        });
+
+        // Listen for the 'updating' event to potentially regenerate the slug
+        static::updating(function ($model) {
+            // Only update the slug if the 'name' attribute has changed
+            if ($model->isDirty('name')) {
+                $model->slug = Str::slug($model->name);
+            }
+        });
     }
 }

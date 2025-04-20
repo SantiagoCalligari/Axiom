@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Role;
 
 class UpdateUniversityRequest extends FormRequest
 {
@@ -11,7 +11,7 @@ class UpdateUniversityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user()->hasRole(Role::ADMIN);
     }
 
     /**
@@ -22,7 +22,8 @@ class UpdateUniversityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['unique:universities,name'],
+            'description' => ['string', 'max:512'],
         ];
     }
 }
