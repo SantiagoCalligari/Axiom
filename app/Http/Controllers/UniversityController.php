@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUniversityRequest;
 use App\Http\Requests\UpdateUniversityRequest;
+use App\Http\Resources\UniversityResource;
+use App\Http\Resources\UniversityResourceCollection;
 use App\Models\University;
 
 class UniversityController extends Controller
@@ -11,56 +13,44 @@ class UniversityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): UniversityResourceCollection
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $universities = University::query();
+        return new UniversityResourceCollection($universities->get());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUniversityRequest $request)
+    public function store(StoreUniversityRequest $request): UniversityResource
     {
-        //
+        $university = University::query()->create($request->validated());
+        return new UniversityResource($university);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(University $university)
+    public function show(University $university): UniversityResource
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(University $university)
-    {
-        //
+        return new UniversityResource($university);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUniversityRequest $request, University $university)
+    public function update(UpdateUniversityRequest $request, University $university): UniversityResource
     {
-        //
+        $university->update($request->validated());
+        return new UniversityResource($university);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(University $university)
+    public function destroy(University $university): Response
     {
-        //
+        $university->delete();
+        return response('Deleted successfully');
     }
 }
