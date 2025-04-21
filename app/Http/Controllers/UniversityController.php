@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateUniversityRequest;
 use App\Http\Resources\UniversityResource;
 use App\Http\Resources\UniversityResourceCollection;
 use App\Models\University;
+use Illuminate\Support\Facades\Response;
 
 class UniversityController extends Controller
 {
@@ -49,7 +50,7 @@ class UniversityController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(University $university): Response
+    public function destroy(University $university)
     {
         $university->delete();
         return response('Deleted successfully');
