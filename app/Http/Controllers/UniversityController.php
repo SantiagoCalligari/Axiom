@@ -33,6 +33,7 @@ class UniversityController extends Controller
      */
     public function show(University $university): UniversityResource
     {
+        $university->load('Careers');
         return new UniversityResource($university);
     }
 
