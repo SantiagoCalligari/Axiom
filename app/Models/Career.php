@@ -2,18 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class University extends Model
+class Career extends Model
 {
-    use HasFactory;
+    protected $fillable = ['name', 'slug', 'description', 'university_id'];
 
-    protected $fillable = ['name', 'slug', 'description'];
-
-    protected static function boot():void
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -30,11 +27,8 @@ class University extends Model
             }
         });
     }
-    /*
-     *  @return HasMany
-     * */
-    public function Careers(): HasMany
+    public function University(): BelongsTo
     {
-        return $this->hasMany(Career::class);
+        return $this->belongsTo(University::class);
     }
 }
