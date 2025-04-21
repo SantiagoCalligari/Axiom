@@ -14,19 +14,27 @@ class PermissionsSeeder extends Seeder
     public function run(): void
     {
         Permission::query()->create([
-            'name' => 'store universities',
+            'name' => 'store university',
             'guard_name' => 'api',
         ]);
         Permission::query()->create([
-            'name' => 'store careers',
+            'name' => 'delete university',
             'guard_name' => 'api',
         ]);
         Permission::query()->create([
-            'name' => 'store exams',
+            'name' => 'store career',
+            'guard_name' => 'api',
+        ]);
+        Permission::query()->create([
+            'name' => 'delete career',
             'guard_name' => 'api',
         ]);
         Permission::query()->create([
             'name' => 'modify roles',
+            'guard_name' => 'api',
+        ]);
+        Permission::query()->create([
+            'name' => 'store exam',
             'guard_name' => 'api',
         ]);
     }

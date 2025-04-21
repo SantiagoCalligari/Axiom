@@ -3,18 +3,17 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateUserRequest extends FormRequest
+class UpdateSubjectRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        $user = request()->user();
+        return $user->hasRole(Role::ADMIN) or $user->hasRole(Role::TEACHER);
     }
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -22,11 +21,8 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $userId = request()->user()->id;
         return [
-            'email' => ['email', Rule::unique('users', 'email')->ignore($userId)],
-            'password' => ['min:8', 'confirmed'],
-            'name' => ['min:3'],
+            //
         ];
     }
 }

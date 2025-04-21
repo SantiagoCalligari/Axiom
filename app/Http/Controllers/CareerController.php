@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 class CareerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(University $university): CareerResourceCollection {}
-
+    public function index(University $university): CareerResourceCollection
+    {
+        $career_query = Career::query()->where('university_id', $university->id);
+        return new CareerResourceCollection($career_query->get());
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -29,17 +29,19 @@ class CareerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Career $career)
+    public function show(University $university, Career $career): CareerResource
     {
-        //
+        $career->load('Subjects');
+        return new CareerResource($career);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCareerRequest $request, Career $career)
+    public function update(UpdateCareerRequest $request, Career $career): CareerResource
     {
-        //
+        $career->update($request->validated());
+        return new CareerResource($career);
     }
 
     /**
@@ -47,6 +49,7 @@ class CareerController extends Controller
      */
     public function destroy(Career $career)
     {
-        //
+        $career->delete();
+        return response('Deleted successfully');
     }
 }
