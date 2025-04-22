@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSubjectRequest;
 use App\Http\Requests\UpdateSubjectRequest;
-use App\Http\Resources\CareerResource;
 use App\Http\Resources\SubjectResource;
 use App\Http\Resources\SubjectResourceCollection;
 use App\Models\Career;
@@ -43,7 +42,7 @@ class SubjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateSubjectRequest $request, Subject $subject): SubjectResource
+    public function update(University $university, Career $career, UpdateSubjectRequest $request, Subject $subject): SubjectResource
     {
         $subject->update($request->validated());
         return new SubjectResource($subject);
@@ -52,7 +51,7 @@ class SubjectController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Subject $subject)
+    public function destroy(University $university, Career $career, Subject $subject)
     {
         $subject->delete();
     }

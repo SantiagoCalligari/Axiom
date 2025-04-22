@@ -5,9 +5,16 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File; // Keep the File facade for exists, size, mimeType
+
 use App\Models\University;
 use App\Models\Career;
-use App\Models\Subject; // Import the Subject model
+use App\Models\Subject;
+use App\Models\User;
+use App\Models\Exam;
+use Spatie\Permission\Models\Role;
 
 class UniversitySeeder extends Seeder
 {
@@ -16,6 +23,38 @@ class UniversitySeeder extends Seeder
      */
     public function run(): void
     {
+        // Ensure roles exist first (optional)
+        // app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        // $alumnoRole = Role::firstOrCreate(['name' => 'alumno']);
+
+        // Create a dummy user to upload exams
+        $dummyUser = User::firstOrCreate(
+            ['email' => 'seeder_user@axiom.test'],
+            [
+                'name' => 'Axiom Seeder',
+                'password' => Hash::make('password'), // Use a simple default password
+            ]
+        );
+
+        // Define the source path for the dummy PDF file
+        $dummyPdfSourcePath = storage_path('app/seeder_files/dummy_exam.pdf'); // <-- Make sure this path is correct
+
+        // Check if the dummy source file exists
+        if (!File::exists($dummyPdfSourcePath)) {
+            $this->command->error("Dummy PDF source file not found at: {$dummyPdfSourcePath}");
+            $this->command->info("Please create a dummy PDF file (e.g., dummy_exam.pdf) at 'storage/app/seeder_files/'.");
+            return; // Stop seeding if the source file is missing
+        }
+
+        // Get information about the dummy source file using File facade
+        $dummyFileSize = File::size($dummyPdfSourcePath);
+        $dummyMimeType = File::mimeType($dummyPdfSourcePath);
+
+
+        // Define the storage disk and target directory
+        $disk = Storage::disk('public');
+        $examStoragePath = 'exams'; // Directory within the public disk
+
         $universities = [
             [
                 'name' => 'Universidad Nacional de Rosario',
@@ -34,25 +73,25 @@ class UniversitySeeder extends Seeder
                     [
                         'name' => 'Derecho',
                         'subjects' => [
-                            'Introducción al Derecho', // Based on search results [13]
+                            'Introducción al Derecho',
                             'Derecho Penal I',
                             'Derecho Civil I (Parte General)',
-                            'Derecho Constitucional', // Based on search results [13]
-                            'Derecho Administrativo' // Based on search results [13]
+                            'Derecho Constitucional',
+                            'Derecho Administrativo'
                         ]
                     ],
                     [
                         'name' => 'Contador Público',
                         'subjects' => [
-                            'Introducción a la Contabilidad', // Based on search results [13, 21, 28]
-                            'Matemática I', // Based on search results [13, 28]
-                            'Introducción a la Economía', // Based on search results [13, 28]
-                            'Sistemas de Información Contable', // Based on search results [13]
-                            'Derecho Comercial' // Based on search results [13]
+                            'Introducción a la Contabilidad',
+                            'Matemática I',
+                            'Introducción a la Economía',
+                            'Sistemas de Información Contable',
+                            'Derecho Comercial'
                         ]
                     ],
                     [
-                        'name' => 'Arquitectura', // Based on search results [24]
+                        'name' => 'Arquitectura',
                         'subjects' => [
                             'Introducción al Diseño Arquitectónico',
                             'Representación Gráfica Arquitectónica',
@@ -62,22 +101,22 @@ class UniversitySeeder extends Seeder
                         ]
                     ],
                     [
-                        'name' => 'Ingeniería Civil', // Based on search results [27, 33]
+                        'name' => 'Ingeniería Civil',
                         'subjects' => [
                             'Estabilidad I',
                             'Mecánica de Suelos',
                             'Hormigón Armado I',
-                            'Hidráulica General', // Based on search results [33]
-                            'Vías de Comunicación I' // Based on search results [3, 14, 18]
+                            'Hidráulica General',
+                            'Vías de Comunicación I'
                         ]
                     ],
                     [
-                        'name' => 'Licenciatura en Ciencia Política', // Based on search results [15]
+                        'name' => 'Licenciatura en Ciencia Política',
                         'subjects' => [
                             'Teoría Política I',
                             'Sistemas Políticos Comparados',
-                            'Historia Política Argentina', // Based on search results [26]
-                            'Relaciones Internacionales', // Based on search results [15]
+                            'Historia Política Argentina',
+                            'Relaciones Internacionales',
                             'Sociología Política'
                         ]
                     ],
@@ -85,7 +124,7 @@ class UniversitySeeder extends Seeder
             ],
             [
                 'name' => 'Universidad Tecnológica Nacional Facultad Regional Rosario',
-                'description' => 'La Facultad Regional Rosario (FRRo) de la Universidad Tecnológica Nacional (UTN) se especializa en la formación de profesionales en áreas de tecnología e ingeniería. Es parte de la red federal de la UTN.', // Based on search results [34, 46, 47, 48]
+                'description' => 'La Facultad Regional Rosario (FRRo) de la Universidad Tecnológica Nacional (UTN) se especializa en la formación de profesionales en áreas de tecnología e ingeniería. Es parte de la red federal de la UTN.',
                 'careers' => [
                     [
                         'name' => 'Ingeniería en Sistemas de Información',
@@ -98,52 +137,52 @@ class UniversitySeeder extends Seeder
                         ]
                     ],
                     [
-                        'name' => 'Ingeniería Mecánica', // Based on search results [27, 33]
+                        'name' => 'Ingeniería Mecánica',
                         'subjects' => [
-                            'Termodinámica', // Based on search results [30, 33]
+                            'Termodinámica',
                             'Mecánica Racional',
                             'Diseño de Máquinas I',
                             'Resistencia de Materiales',
-                            'Mecánica de Fluidos' // Based on search results [4, 9]
+                            'Mecánica de Fluidos'
                         ]
                     ],
                     [
-                        'name' => 'Ingeniería Eléctrica', // Based on search results [27, 33]
+                        'name' => 'Ingeniería Eléctrica',
                         'subjects' => [
                             'Circuitos Eléctricos I',
                             'Electrónica General',
-                            'Máquinas Eléctricas I', // Based on search results [33]
+                            'Máquinas Eléctricas I',
                             'Sistemas de Control',
                             'Instalaciones Eléctricas'
                         ]
                     ],
                     [
-                        'name' => 'Ingeniería Química', // Based on search results [12, 45]
+                        'name' => 'Ingeniería Química',
                         'subjects' => [
-                            'Química General', // Based on search results [9, 12]
-                            'Fisicoquímica', // Based on search results [12, 50]
-                            'Operaciones Unitarias I', // Based on search results [12]
-                            'Reactores Químicos', // Based on search results [12]
-                            'Termodinámica Química' // Based on search results [12, 43]
+                            'Química General',
+                            'Fisicoquímica',
+                            'Operaciones Unitarias I',
+                            'Reactores Químicos',
+                            'Termodinámica Química'
                         ]
                     ],
                     [
-                        'name' => 'Licenciatura en Administración de Empresas', // Based on search results [11, 35, 40]
+                        'name' => 'Licenciatura en Administración de Empresas',
                         'subjects' => [
-                            'Administración General', // Based on search results [11, 28]
+                            'Administración General',
                             'Principios de Marketing',
-                            'Gestión de Recursos Humanos', // Based on search results [28, 40]
+                            'Gestión de Recursos Humanos',
                             'Finanzas Corporativas',
-                            'Comercialización' // Based on search results [28, 35]
+                            'Comercialización'
                         ]
                     ],
                     [
-                        'name' => 'Tecnicatura Universitaria en Programación', // Based on search results [10, 42, 46, 47, 51]
+                        'name' => 'Tecnicatura Universitaria en Programación',
                         'subjects' => [
-                            'Programación I', // Based on search results [10]
+                            'Programación I',
                             'Laboratorio de Programación I',
                             'Arquitectura de Computadoras',
-                            'Base de Datos', // Based on search results [10]
+                            'Base de Datos',
                             'Metodología de la Programación'
                         ]
                     ],
@@ -151,26 +190,26 @@ class UniversitySeeder extends Seeder
             ],
             [
                 'name' => 'Pontificia Universidad Católica Argentina Sede Rosario',
-                'description' => 'La sede Rosario de la Pontificia Universidad Católica Argentina (UCA) es una universidad privada con una oferta académica diversa, incluyendo facultades de Derecho, Ciencias Sociales, Ciencias Económicas, entre otras.', // Based on search results [7, 23]
+                'description' => 'La sede Rosario de la Pontificia Universidad Católica Argentina (UCA) es una universidad privada con una oferta académica diversa, incluyendo facultades de Derecho, Ciencias Sociales, Ciencias Económicas, entre otras.',
                 'careers' => [
                     [
-                        'name' => 'Abogacía', // Similar to Derecho
+                        'name' => 'Abogacía',
                         'subjects' => [
-                            'Derecho Romano', // Based on search results [25]
+                            'Derecho Romano',
                             'Derecho Civil (Parte General)',
                             'Derecho Penal',
                             'Derecho de Familia',
-                            'Derechos Humanos' // Based on search results [25]
+                            'Derechos Humanos'
                         ]
                     ],
                     [
-                        'name' => 'Contador Público', // Based on search results [7, 17]
+                        'name' => 'Contador Público',
                         'subjects' => [
                             'Contabilidad Superior',
-                            'Auditoría', // Based on search results [7, 17]
-                            'Sistemas Impositivos I', // Based on search results [17]
+                            'Auditoría',
+                            'Sistemas Impositivos I',
                             'Finanzas de Empresas',
-                            'Costos para la Gestión' // Based on search results [7]
+                            'Costos para la Gestión'
                         ]
                     ],
                     [
@@ -194,23 +233,23 @@ class UniversitySeeder extends Seeder
                         ]
                     ],
                     [
-                        'name' => 'Ingeniería Industrial', // Based on search results [4, 6, 9, 30]
+                        'name' => 'Ingeniería Industrial',
                         'subjects' => [
                             'Investigación Operativa',
                             'Gestión de la Producción',
-                            'Ingeniería Económica', // Based on search results [9]
+                            'Ingeniería Económica',
                             'Control de Gestión',
-                            'Logística y Cadena de Suministro' // Based on search results [4]
+                            'Logística y Cadena de Suministro'
                         ]
                     ],
                 ]
             ],
             [
                 'name' => 'Universidad Católica de Santa Fe Sede Rosario',
-                'description' => 'La Universidad Católica de Santa Fe (UCSF) cuenta con una sede en Rosario, ofreciendo carreras en diversas áreas como Arquitectura, Ciencias de la Salud y Psicología.', // Based on search results [37, 41, 44]
+                'description' => 'La Universidad Católica de Santa Fe (UCSF) cuenta con una sede en Rosario, ofreciendo carreras en diversas áreas como Arquitectura, Ciencias de la Salud y Psicología.',
                 'careers' => [
                     [
-                        'name' => 'Arquitectura', // Based on search results [37, 41]
+                        'name' => 'Arquitectura',
                         'subjects' => [
                             'Taller de Arquitectura',
                             'Historia de la Arquitectura II',
@@ -220,7 +259,7 @@ class UniversitySeeder extends Seeder
                         ]
                     ],
                     [
-                        'name' => 'Licenciatura en Psicología', // Based on search results [28]
+                        'name' => 'Licenciatura en Psicología',
                         'subjects' => [
                             'Historia de la Psicología',
                             'Psicoanálisis',
@@ -230,7 +269,7 @@ class UniversitySeeder extends Seeder
                         ]
                     ],
                     [
-                        'name' => 'Licenciatura en Obstetricia', // Based on search results [28]
+                        'name' => 'Licenciatura en Obstetricia',
                         'subjects' => [
                             'Anatomofisiología del Embarazo',
                             'Semiología Obstétrica',
@@ -240,17 +279,17 @@ class UniversitySeeder extends Seeder
                         ]
                     ],
                     [
-                        'name' => 'Licenciatura en Diseño Industrial', // Based on search results [5, 36, 37, 41, 44]
+                        'name' => 'Licenciatura en Diseño Industrial',
                         'subjects' => [
-                            'Diseño Industrial I', // Based on search results [5]
-                            'Morfología', // Based on search results [5]
-                            'Sistemas de Representación', // Based on search results [5]
-                            'Tecnología Industrial', // Based on search results [5]
-                            'Ergonomía' // Based on search results [5]
+                            'Diseño Industrial I',
+                            'Morfología',
+                            'Sistemas de Representación',
+                            'Tecnología Industrial',
+                            'Ergonomía'
                         ]
                     ],
                     [
-                        'name' => 'Licenciatura en Administración de Empresas Digitales', // Based on search results [28] - Assuming similar to Admin.
+                        'name' => 'Licenciatura en Administración de Empresas Digitales',
                         'subjects' => [
                             'Administración de Empresas Digitales',
                             'Marketing Digital',
@@ -264,50 +303,112 @@ class UniversitySeeder extends Seeder
         ];
 
         foreach ($universities as $uniData) {
-            $university = University::create([
-                'name' => $uniData['name'],
-                'slug' => Str::slug($uniData['name']),
-                'description' => $uniData['description'],
-            ]);
+            $university = University::firstOrCreate(
+                ['name' => $uniData['name']],
+                [
+                    'slug' => Str::slug($uniData['name']),
+                    'description' => $uniData['description'],
+                ]
+            );
 
             foreach ($uniData['careers'] as $careerData) {
-                // Ensure we don't create too many careers if the source provided more than 5 (though unlikely with structured data)
-                if (Career::where('university_id', $university->id)->count() < 6) { // Allowing up to 6 as some lists had more initially
-                    $career = Career::create([
-                        'name' => $careerData['name'],
-                        'university_id' => $university->id,
-                        // Career slug unique per university (assuming your migration has the composite index)
+                $career = Career::firstOrCreate(
+                    ['university_id' => $university->id, 'name' => $careerData['name']],
+                    [
                         'slug' => Str::slug($careerData['name']),
-                    ]);
+                    ]
+                );
 
-                    $subjectCount = 0; // Counter to limit subjects per career
+                $subjectCount = 0;
 
-                    foreach ($careerData['subjects'] as $subjectName) {
-                        if ($subjectCount < 5) { // Limit to 5 subjects per career
-                            // Generate a globally unique slug for the subject
-                            // Combining subject slug and career slug
-                            $subjectSlug = Str::slug($subjectName);
-                            $careerSlug = $career->slug; // Get the slug of the created career
-                            $uniqueSubjectSlug = $subjectSlug . '-' . $careerSlug;
+                foreach ($careerData['subjects'] as $subjectName) {
+                    if ($subjectCount < 5) {
+                        $subjectSlugBase = Str::slug($subjectName);
+                        $careerSlug = $career->slug;
+                        $uniqueSubjectSlug = $subjectSlugBase . '-' . $careerSlug;
 
-                            // Ensure the subject slug is truly unique in case of accidental duplicates
-                            while (Subject::where('slug', $uniqueSubjectSlug)->exists()) {
-                                $uniqueSubjectSlug .= '-' . Str::random(3); // Append random string if slug exists
+                        while (Subject::where('slug', $uniqueSubjectSlug)->exists()) {
+                            $uniqueSubjectSlug .= '-' . Str::random(3);
+                        }
+
+                        $subject = Subject::firstOrCreate(
+                            ['career_id' => $career->id, 'name' => $subjectName],
+                            [
+                                'slug' => $uniqueSubjectSlug,
+                            ]
+                        );
+
+                        // --- Create an Exam and Copy the Dummy File for this Subject ---
+                        $existingExam = Exam::where('user_id', $dummyUser->id)
+                            ->where('subject_id', $subject->id)
+                            ->first();
+
+                        if (!$existingExam) {
+                            $examTitle = "Examen Dummy de " . $subject->name;
+                            $targetFileName = Str::slug($examTitle) . '-' . uniqid() . '.pdf';
+                            $targetFilePath = $examStoragePath . '/' . $targetFileName;
+
+                            // Ensure the target directory exists
+                            if (!$disk->exists($examStoragePath)) {
+                                $disk->makeDirectory($examStoragePath);
+                            }
+
+                            // Get a resource handle for the source file using native PHP fopen
+                            $stream = fopen($dummyPdfSourcePath, 'r');
+
+                            if ($stream === false) {
+                                $this->command->error("Failed to open dummy PDF source file: {$dummyPdfSourcePath}");
+                                continue; // Skip this exam if we can't open the source file
+                            }
+
+                            // Copy the dummy PDF file stream to the target location on the disk
+                            try {
+                                $disk->put($targetFilePath, $stream); // Storage's put method can handle streams
+                                $this->command->info("Copied dummy file to: {$targetFilePath}");
+                            } catch (\Exception $e) {
+                                $this->command->error("Failed to copy dummy PDF '{$dummyPdfSourcePath}' to '{$targetFilePath}': " . $e->getMessage());
+                                // If file copy fails, skip creating the exam record for this subject
+                                // Ensure the stream is closed even if put fails
+                                if (is_resource($stream)) {
+                                    fclose($stream);
+                                }
+                                continue;
+                            } finally {
+                                // Ensure the stream is closed whether put succeeded or failed
+                                if (is_resource($stream)) {
+                                    fclose($stream);
+                                }
                             }
 
 
-                            Subject::create([
-                                'name' => $subjectName,
-                                'career_id' => $career->id,
-                                'slug' => $uniqueSubjectSlug, // Use the generated unique slug
-                                // 'description' => null, // Subjects array doesn't have descriptions, leaving as null or add simple generic one
+                            // Create the exam record in the database
+                            Exam::create([
+                                'user_id' => $dummyUser->id,
+                                'subject_id' => $subject->id,
+                                'title' => $examTitle,
+                                'professor_name' => 'Profesor Dummy',
+                                'semester' => (rand(1, 2)) . 'C ' . date('Y'),
+                                'year' => date('Y'),
+                                'is_resolved' => (bool)rand(0, 1),
+                                'exam_type' => (rand(0, 1) === 1) ? 'midterm' : 'final', // <-- Assign random type
+                                'exam_date' => now()->subMonths(rand(1, 6))->toDateString(),
+                                'file_path' => $targetFilePath,
+                                'original_file_name' => $targetFileName,
+                                'mime_type' => $dummyMimeType,
+                                'file_size' => $dummyFileSize,
+                                'ocr_text' => null,
                             ]);
-
-                            $subjectCount++;
+                            $this->command->info("Created exam record for subject: {$subject->name}");
+                        } else {
+                            $this->command->info("Exam already exists for subject: {$subject->name} by seeder user, skipping creation.");
                         }
+                        // --- End Create Exam ---
+
+                        $subjectCount++;
                     }
                 }
             }
         }
+        $this->command->info('University, Career, Subject, User, and Exam seeding complete.');
     }
 }

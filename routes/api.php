@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CareerController;
+use App\Http\Controllers\ExamController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\UserController;
@@ -37,6 +38,8 @@ Route::get('/universities/{university}/careers', [CareerController::class, 'inde
 Route::get('/universities/{university}/careers/{career}', [CareerController::class, 'show']);
 Route::get('/universities/{university}/careers/{career}/subjects', [SubjectController::class, 'index']);
 Route::get('/universities/{university}/careers/{career}/subjects/{subject}', [SubjectController::class, 'show']);
+Route::get('/universities/{university}/careers/{career}/subjects/{subject}/exams', [ExamController::class, 'index']);
+Route::get('/universities/{university}/careers/{career}/subjects/{subject}/exams/{exam}', [ExamController::class, 'show']);
 
 
 // --- Authenticated Routes ---
@@ -83,17 +86,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/universities/{university}/careers/{career}/subjects/{subject}', [SubjectController::class, 'update']);
     Route::delete('/universities/{university}/careers/{career}/subjects/{subject}', [SubjectController::class, 'destroy']);
 
-    /*
-    // If you need other authenticated career actions (listing, showing, updating, deleting)
-    // related to a university, you could add them here or use a nested resource:
-    Route::get('/universities/{university}/careers', [CareerController::class, 'indexForUniversity']); // List careers for a university
-    Route::get('/universities/{university}/careers/{career}', [CareerController::class, 'showForUniversity']); // Show a specific career for a university
-    Route::put('/universities/{university}/careers/{career}', [CareerController::class, 'updateForUniversity']); // Update a specific career
-    Route::delete('/universities/{university}/careers/{career}', [CareerController::class, 'destroyForUniversity']); // Delete a specific career
-
-    // Or using nested Route::resource (more advanced):
-    Route::resource('universities.careers', CareerController::class)->only([
-        'store', 'index', 'show', 'update', 'destroy'
-    ]);
-    */
+    Route::post('/universities/{university}/careers/{career}/subjects/{subject}/exams', [ExamController::class, 'store']);
+    Route::post('/universities/{university}/careers/{career}/subjects/{subject}/exams/{exam}', [ExamController::class, 'update']);
+    Route::delete('/universities/{university}/careers/{career}/subjects/{subject}/exams/{exam}', [ExamController::class, 'destroy']);
 });
