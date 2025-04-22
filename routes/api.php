@@ -33,13 +33,13 @@ Route::post('/auth/register', [UserController::class, 'store']);
 
 // Public access to Universities (Listing and Viewing individual universities)
 Route::get('/universities', [UniversityController::class, 'index']);
-Route::get('/universities/{university}', [UniversityController::class, 'show']);
-Route::get('/universities/{university}/careers', [CareerController::class, 'index']);
-Route::get('/universities/{university}/careers/{career}', [CareerController::class, 'show']);
-Route::get('/universities/{university}/careers/{career}/subjects', [SubjectController::class, 'index']);
-Route::get('/universities/{university}/careers/{career}/subjects/{subject}', [SubjectController::class, 'show']);
-Route::get('/universities/{university}/careers/{career}/subjects/{subject}/exams', [ExamController::class, 'index']);
-Route::get('/universities/{university}/careers/{career}/subjects/{subject}/exams/{exam}', [ExamController::class, 'show']);
+Route::get('/{university}', [UniversityController::class, 'show']);
+Route::get('/{university}/careers', [CareerController::class, 'index']);
+Route::get('/{university}/{career}', [CareerController::class, 'show']);
+Route::get('/{university}/{career}/subjects', [SubjectController::class, 'index']);
+Route::get('/{university}/{career}/{subject}', [SubjectController::class, 'show']);
+Route::get('/{university}/{career}/{subject}/exams', [ExamController::class, 'index']);
+Route::get('/{university}/{career}/{subject}/{exam}', [ExamController::class, 'show']);
 
 
 // --- Authenticated Routes ---
@@ -61,8 +61,8 @@ Route::middleware('auth:api')->group(function () {
     // These are the protected actions (Create, Update, Delete).
     // Note: Using PUT for update following REST conventions.
     Route::post('/universities', [UniversityController::class, 'store'])->can(Permission::STORE_UNIVERSITY); // Create new university
-    Route::post('/universities/{university}', [UniversityController::class, 'update'])->can(Permission::STORE_UNIVERSITY); // Update specific university
-    Route::delete('/universities/{university}', [UniversityController::class, 'destroy'])->can(Permission::DELETE_UNIVERSITY); // Delete specific university
+    Route::post('/{university}', [UniversityController::class, 'update'])->can(Permission::STORE_UNIVERSITY); // Update specific university
+    Route::delete('/{university}', [UniversityController::class, 'destroy'])->can(Permission::DELETE_UNIVERSITY); // Delete specific university
 
     /*
     // Alternative using Route::resource for authenticated university actions:
@@ -76,17 +76,17 @@ Route::middleware('auth:api')->group(function () {
     // Career Management (Authenticated Actions)
     // Assuming careers are nested under universities.
     // Creating a career for a specific university.
-    Route::post('/universities/{university}/careers', [CareerController::class, 'store'])->can(Permission::STORE_CAREER);
-    Route::post('/universities/{university}/careers/{career}', [CareerController::class, 'update'])->can(Permission::STORE_CAREER);
-    Route::delete('/universities/{university}/careers/{career}', [CareerController::class, 'destroy'])->can(Permission::DELETE_CAREER);
+    Route::post('/{university}/careers', [CareerController::class, 'store'])->can(Permission::STORE_CAREER);
+    Route::post('/{university}/{career}', [CareerController::class, 'update'])->can(Permission::STORE_CAREER);
+    Route::delete('/{university}/{career}', [CareerController::class, 'destroy'])->can(Permission::DELETE_CAREER);
 
 
     // subjects Management (Authenticated Actions)
-    Route::post('/universities/{university}/careers/{career}/subjects', [SubjectController::class, 'store']);
-    Route::post('/universities/{university}/careers/{career}/subjects/{subject}', [SubjectController::class, 'update']);
-    Route::delete('/universities/{university}/careers/{career}/subjects/{subject}', [SubjectController::class, 'destroy']);
+    Route::post('/{university}/{career}/subjects', [SubjectController::class, 'store']);
+    Route::post('/{university}/{career}/{subject}', [SubjectController::class, 'update']);
+    Route::delete('/{university}/{career}/{subject}', [SubjectController::class, 'destroy']);
 
-    Route::post('/universities/{university}/careers/{career}/subjects/{subject}/exams', [ExamController::class, 'store']);
-    Route::post('/universities/{university}/careers/{career}/subjects/{subject}/exams/{exam}', [ExamController::class, 'update']);
-    Route::delete('/universities/{university}/careers/{career}/subjects/{subject}/exams/{exam}', [ExamController::class, 'destroy']);
+    Route::post('/{university}/{career}/{subject}/exams', [ExamController::class, 'store']);
+    Route::post('/{university}/{career}/{subject}/{exam}', [ExamController::class, 'update']);
+    Route::delete('/{university}/{career}/{subject}/{exam}', [ExamController::class, 'destroy']);
 });
