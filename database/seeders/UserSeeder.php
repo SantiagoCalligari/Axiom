@@ -16,5 +16,10 @@ class UserSeeder extends Seeder
             'name' => 'admin',
         ]);
         $admin->assignRole('admin');
+        User::query()->create([
+            'email' => 'santiago@calligari.ar',
+            'password' => bcrypt('muriel'),
+            'name' => 'Santiago Calligari',
+        ]);
     }
 }
