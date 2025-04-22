@@ -28,6 +28,10 @@ class Career extends Model
             }
         });
     }
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
     public function University(): BelongsTo
     {
         return $this->belongsTo(University::class);

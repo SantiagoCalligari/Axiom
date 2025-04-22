@@ -38,7 +38,7 @@ class CareerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCareerRequest $request, Career $career): CareerResource
+    public function update(University $university, UpdateCareerRequest $request, Career $career): CareerResource
     {
         $career->update($request->validated());
         return new CareerResource($career);
@@ -47,7 +47,7 @@ class CareerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Career $career)
+    public function destroy(University $university, Career $career)
     {
         $career->delete();
         return response('Deleted successfully');

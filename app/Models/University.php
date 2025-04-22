@@ -13,7 +13,7 @@ class University extends Model
 
     protected $fillable = ['name', 'slug', 'description'];
 
-    protected static function boot():void
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -29,6 +29,10 @@ class University extends Model
                 $model->slug = Str::slug($model->name);
             }
         });
+    }
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
     /*
      *  @return HasMany
