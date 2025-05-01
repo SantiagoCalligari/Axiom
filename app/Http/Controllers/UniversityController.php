@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateUniversityRequest;
 use App\Http\Resources\UniversityResource;
 use App\Http\Resources\UniversityResourceCollection;
 use App\Models\University;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 class UniversityController extends Controller
@@ -14,9 +15,19 @@ class UniversityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): UniversityResourceCollection
+    public function index(Request $request): UniversityResourceCollection
     {
         $universities = University::query();
+
+        if ($request->has('search') && !empty($request->query('search'))) {
+            $searchTerm = $request->query('search');
+            $universities->where('name', 'LIKE', '%' . $searchTerm . '%');
+        }
+
+        $limit = $request->query('limit', 5);
+        $universities->limit($limit);
+
+
         return new UniversityResourceCollection($universities->get());
     }
 
