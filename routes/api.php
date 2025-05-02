@@ -30,6 +30,17 @@ Route::post('/auth/token', [AuthController::class, 'store_token']);
 // Assuming the original POST /users is for creating a new user account
 Route::post('/auth/register', [UserController::class, 'store']);
 // If you prefer, you could name this '/auth/register' or similar
+Route::middleware('auth:api')->group(function () {
+    // Authenticated User Actions
+    // Authenticated User Actions
+    // Assuming the original GET /users and POST /users/update were for the authenticated user.
+    // Using a dedicated /auth/user route makes this clearer.
+    // You will need to add 'showAuthenticatedUser' and 'updateAuthenticatedUser' methods
+    // to your UserController that retrieve/update the currently authenticated user.
+    Route::get('/auth/user', [UserController::class, 'show']);
+    // Using PUT for update following REST conventions
+    Route::post('/auth/user', [UserController::class, 'update']);
+});
 
 // Public access to Universities (Listing and Viewing individual universities)
 Route::get('/universities', [UniversityController::class, 'index']);
@@ -46,14 +57,6 @@ Route::get('/{university}/{career}/{subject}/{exam}', [ExamController::class, 's
 // These routes require a valid API token
 Route::middleware('auth:api')->group(function () {
 
-    // Authenticated User Actions
-    // Assuming the original GET /users and POST /users/update were for the authenticated user.
-    // Using a dedicated /auth/user route makes this clearer.
-    // You will need to add 'showAuthenticatedUser' and 'updateAuthenticatedUser' methods
-    // to your UserController that retrieve/update the currently authenticated user.
-    Route::get('/auth/user', [UserController::class, 'show']);
-    // Using PUT for update following REST conventions
-    Route::post('/auth/user', [UserController::class, 'update']);
 
 
     // University Management (Authenticated Actions)
