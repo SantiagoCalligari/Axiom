@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\File; // Keep the File facade for exists, size, mimeType
+use Illuminate\Support\Facades\File;
+use Carbon\Carbon; // Import Carbon for date manipulation
 
 use App\Models\University;
 use App\Models\Career;
@@ -23,39 +24,43 @@ class UniversitySeeder extends Seeder
      */
     public function run(): void
     {
-        // Ensure roles exist first (optional)
-        // app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-        // $alumnoRole = Role::firstOrCreate(['name' => 'alumno']);
-
         // Create a dummy user to upload exams
         $dummyUser = User::firstOrCreate(
             ['email' => 'seeder_user@axiom.test'],
             [
                 'name' => 'Axiom Seeder',
-                'password' => Hash::make('password'), // Use a simple default password
+                'password' => Hash::make('password'),
             ]
         );
 
         // Define the source path for the dummy PDF file
-        $dummyPdfSourcePath = storage_path('app/seeder_files/dummy_exam.pdf'); // <-- Make sure this path is correct
+        $dummyPdfSourcePath = storage_path('app/seeder_files/dummy_exam.pdf');
 
         // Check if the dummy source file exists
         if (!File::exists($dummyPdfSourcePath)) {
             $this->command->error("Dummy PDF source file not found at: {$dummyPdfSourcePath}");
             $this->command->info("Please create a dummy PDF file (e.g., dummy_exam.pdf) at 'storage/app/seeder_files/'.");
-            return; // Stop seeding if the source file is missing
+            return;
         }
 
-        // Get information about the dummy source file using File facade
+        // Get information about the dummy source file
         $dummyFileSize = File::size($dummyPdfSourcePath);
         $dummyMimeType = File::mimeType($dummyPdfSourcePath);
 
-
         // Define the storage disk and target directory
         $disk = Storage::disk('public');
-        $examStoragePath = 'exams'; // Directory within the public disk
+        $examStoragePath = 'exams';
+
+        // Ensure the target directory exists
+        if (!$disk->exists($examStoragePath)) {
+            $disk->makeDirectory($examStoragePath);
+        }
+
+        // Dummy professor names
+        $professors = ['García', 'Martínez', 'López', 'González', 'Rodríguez', 'Pérez', 'Sánchez', 'Romero', 'Díaz', 'Torres'];
 
         $universities = [
+            // ... (Tu array de universidades, carreras y materias se mantiene igual) ...
             [
                 'name' => 'Universidad Nacional de Rosario',
                 'description' => 'La Universidad Nacional de Rosario (UNR) es una universidad pública argentina con sede en la Ciudad de Rosario. Fue creada en 1968 y es una de las instituciones públicas más grandes de Argentina, con una amplia oferta académica y fuerte presencia en investigación.',
@@ -302,110 +307,106 @@ class UniversitySeeder extends Seeder
             ],
         ];
 
+        $this->command->info('Starting University, Career, Subject, and Exam seeding...');
+
         foreach ($universities as $uniData) {
             $university = University::firstOrCreate(
                 ['name' => $uniData['name']],
-                [
-                    'slug' => Str::slug($uniData['name']),
-                    'description' => $uniData['description'],
-                ]
+                ['slug' => Str::slug($uniData['name']), 'description' => $uniData['description']]
             );
+            $this->command->info("Processing University: {$university->name}");
 
             foreach ($uniData['careers'] as $careerData) {
                 $career = Career::firstOrCreate(
                     ['university_id' => $university->id, 'name' => $careerData['name']],
-                    [
-                        'slug' => Str::slug($careerData['name']),
-                    ]
+                    ['slug' => Str::slug($careerData['name'])]
                 );
-
-                $subjectCount = 0;
+                $this->command->info("  Processing Career: {$career->name}");
 
                 foreach ($careerData['subjects'] as $subjectName) {
-                    if ($subjectCount < 5) {
-                        $subjectSlugBase = Str::slug($subjectName);
-                        $careerSlug = $career->slug;
-                        $uniqueSubjectSlug = $subjectSlugBase . '-' . $careerSlug;
-
-                        while (Subject::where('slug', $uniqueSubjectSlug)->exists()) {
-                            $uniqueSubjectSlug .= '-' . Str::random(3);
-                        }
-
-                        $subject = Subject::firstOrCreate(
-                            ['career_id' => $career->id, 'name' => $subjectName],
-                            [
-                                'slug' => $uniqueSubjectSlug,
-                            ]
-                        );
-
-                        // --- Create an Exam and Copy the Dummy File for this Subject ---
-                        $existingExam = Exam::where('user_id', $dummyUser->id)
-                            ->where('subject_id', $subject->id)
-                            ->first();
-
-                        if (!$existingExam) {
-                            $examTitle = "Examen Dummy de " . $subject->name;
-                            $targetFileName = Str::slug($examTitle) . '-' . uniqid() . '.pdf';
-                            $targetFilePath = $examStoragePath . '/' . $targetFileName;
-
-                            // Ensure the target directory exists
-                            if (!$disk->exists($examStoragePath)) {
-                                $disk->makeDirectory($examStoragePath);
-                            }
-
-                            // Get a resource handle for the source file using native PHP fopen
-                            $stream = fopen($dummyPdfSourcePath, 'r');
-
-                            if ($stream === false) {
-                                $this->command->error("Failed to open dummy PDF source file: {$dummyPdfSourcePath}");
-                                continue; // Skip this exam if we can't open the source file
-                            }
-
-                            // Copy the dummy PDF file stream to the target location on the disk
-                            try {
-                                $disk->put($targetFilePath, $stream); // Storage's put method can handle streams
-                                $this->command->info("Copied dummy file to: {$targetFilePath}");
-                            } catch (\Exception $e) {
-                                $this->command->error("Failed to copy dummy PDF '{$dummyPdfSourcePath}' to '{$targetFilePath}': " . $e->getMessage());
-                                // If file copy fails, skip creating the exam record for this subject
-                                // Ensure the stream is closed even if put fails
-                                if (is_resource($stream)) {
-                                    fclose($stream);
-                                }
-                                continue;
-                            } finally {
-                                // Ensure the stream is closed whether put succeeded or failed
-                                if (is_resource($stream)) {
-                                    fclose($stream);
-                                }
-                            }
-
-
-                            // Create the exam record in the database
-                            Exam::create([
-                                'user_id' => $dummyUser->id,
-                                'subject_id' => $subject->id,
-                                'title' => $examTitle,
-                                'professor_name' => 'Profesor Dummy',
-                                'semester' => (rand(1, 2)) . 'C ' . date('Y'),
-                                'year' => date('Y'),
-                                'is_resolved' => (bool)rand(0, 1),
-                                'exam_type' => (rand(0, 1) === 1) ? 'midterm' : 'final', // <-- Assign random type
-                                'exam_date' => now()->subMonths(rand(1, 6))->toDateString(),
-                                'file_path' => $targetFilePath,
-                                'original_file_name' => $targetFileName,
-                                'mime_type' => $dummyMimeType,
-                                'file_size' => $dummyFileSize,
-                                'ocr_text' => null,
-                            ]);
-                            $this->command->info("Created exam record for subject: {$subject->name}");
-                        } else {
-                            $this->command->info("Exam already exists for subject: {$subject->name} by seeder user, skipping creation.");
-                        }
-                        // --- End Create Exam ---
-
-                        $subjectCount++;
+                    $subjectSlugBase = Str::slug($subjectName);
+                    $careerSlug = $career->slug;
+                    $uniqueSubjectSlug = $subjectSlugBase . '-' . $careerSlug;
+                    while (Subject::where('slug', $uniqueSubjectSlug)->exists()) {
+                        $uniqueSubjectSlug .= '-' . Str::random(3);
                     }
+                    $subject = Subject::firstOrCreate(
+                        ['career_id' => $career->id, 'name' => $subjectName],
+                        ['slug' => $uniqueSubjectSlug]
+                    );
+                    $this->command->info("    Processing Subject: {$subject->name} - Creating 50 exams...");
+
+                    // --- Crear 50 Exámenes por Materia ---
+                    // Inicializar la barra de progreso ANTES del bucle
+                    $bar = $this->command->getOutput()->createProgressBar(50);
+                    $bar->start();
+
+                    // Bucle FOR para crear 50 exámenes
+                    for ($i = 0; $i < 50; $i++) {
+                        // Generar datos aleatorios para el examen
+                        $randomProfessor = $professors[array_rand($professors)];
+                        $randomYear = rand(date('Y') - 3, date('Y'));
+                        $randomSemester = rand(1, 2) . 'C ' . $randomYear;
+                        $randomIsResolved = (bool)rand(0, 1);
+                        $randomExamType = (rand(0, 1) === 1) ? 'parcial' : 'final';
+                        $randomDate = Carbon::now()->subDays(rand(0, 365))->toDateString();
+                        // Título más variado
+                        $examTitle = "Examen " . Str::ucfirst($randomExamType) . " " . $subject->name . " #" . ($i + 1) . " - " . $randomSemester;
+
+                        // Crear nombre de archivo único para la copia
+                        $targetFileName = Str::slug($examTitle) . '-' . uniqid() . '.pdf';
+                        $targetFilePath = $examStoragePath . '/' . $targetFileName;
+
+                        // Copiar el archivo dummy
+                        $stream = fopen($dummyPdfSourcePath, 'r');
+                        if ($stream === false) {
+                            $this->command->error("Failed to open dummy PDF source file: {$dummyPdfSourcePath}");
+                            // Detener la barra y salir si falla la apertura del fuente
+                            $bar->finish();
+                            $this->command->newLine();
+                            $this->command->error("Aborting exam creation for subject {$subject->name} due to file error.");
+                            break; // Salir del bucle for
+                        }
+                        try {
+                            $disk->put($targetFilePath, $stream);
+                        } catch (\Exception $e) {
+                            $this->command->error("Failed to copy dummy PDF to '{$targetFilePath}': " . $e->getMessage());
+                            if (is_resource($stream)) fclose($stream);
+                            // Detener la barra y salir si falla la copia
+                            $bar->finish();
+                            $this->command->newLine();
+                            $this->command->error("Aborting exam creation for subject {$subject->name} due to file error.");
+                            break; // Salir del bucle for
+                        } finally {
+                            if (is_resource($stream)) fclose($stream);
+                        }
+
+                        // Crear el registro del examen
+                        Exam::create([
+                            'user_id' => $dummyUser->id,
+                            'subject_id' => $subject->id,
+                            'title' => $examTitle,
+                            'professor_name' => $randomProfessor,
+                            'semester' => $randomSemester,
+                            'year' => $randomYear,
+                            'is_resolved' => $randomIsResolved,
+                            'exam_type' => $randomExamType,
+                            'exam_date' => $randomDate,
+                            'file_path' => $targetFilePath,
+                            'original_file_name' => $targetFileName,
+                            'mime_type' => $dummyMimeType,
+                            'file_size' => $dummyFileSize,
+                            'ocr_text' => null,
+                            // 'slug' => Str::slug($examTitle . '-' . uniqid()) // Generar slug si es necesario
+                        ]);
+
+                        $bar->advance(); // Avanzar la barra de progreso DENTRO del bucle for
+                    } // Fin del bucle for
+
+                    // Finalizar la barra de progreso DESPUÉS del bucle for
+                    $bar->finish();
+                    $this->command->newLine(); // Nueva línea después de la barra de progreso
+                    // --- Fin Crear 50 Exámenes ---
                 }
             }
         }
