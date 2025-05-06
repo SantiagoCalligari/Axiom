@@ -12,4 +12,5 @@ class Permission extends SpatiePermission
     public const DELETE_UNIVERSITY = 'delete university';
     public const STORE_CAREER = 'store career';
     public const DELETE_CAREER = 'delete career';
+    public const MODIFY_USER_ROLES = 'modify user roles';
 }

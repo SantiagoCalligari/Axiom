@@ -20,6 +20,7 @@ class RoleSeeder extends Seeder
         $admin_role->givePermissionTo('delete career');
         $admin_role->givePermissionTo('store exam');
         $admin_role->givePermissionTo('modify roles');
+        $admin_role->givePermissionTo('modify user roles');
 
         $teacher_role = Role::query()->create([
             'name' => 'teacher',

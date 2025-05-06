@@ -37,5 +37,9 @@ class PermissionsSeeder extends Seeder
             'name' => 'store exam',
             'guard_name' => 'api',
         ]);
+        Permission::query()->create([
+            'name' => 'modify user roles',
+            'guard_name' => 'api',
+        ]);
     }
 }
