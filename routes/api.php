@@ -93,4 +93,6 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/university/{university}/career/{career}/subject/{subject}/exams', [ExamController::class, 'store']);
     Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}', [ExamController::class, 'update']);
     Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}', [ExamController::class, 'destroy']);
+
+    Route::post('/users/{user}/assign-teacher', [UserController::class, 'assignTeacherRole'])->middleware('auth:api');
 });

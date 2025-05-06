@@ -27,6 +27,17 @@ class UserController extends Controller
 
     public function show(): UserResource
     {
-        return new UserResource(Auth::user());
+        $user = Auth::user();
+        $user->load('roles');
+        return new UserResource($user);
+    }
+
+    public function assignTeacherRole(User $user)
+    {
+        if (!$this->authorize('modify user roles')) {
+            return response()->json(['message' => 'No tienes permiso para realizar esta acción'], 403);
+        }
+        $user->assignRole('teacher');
+        return new UserResource($user);
     }
 }
