@@ -94,5 +94,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}', [ExamController::class, 'update']);
     Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}', [ExamController::class, 'destroy']);
 
-    Route::post('/users/{user}/assign-teacher', [UserController::class, 'assignTeacherRole'])->middleware('auth:api');
+    Route::post('/users/{user}/assign-teacher', [UserController::class, 'assignTeacherRole'])->can(Permission::MODIFY_USER_ROLES);
+
+    Route::post('/users/subscribe/{university}/{career}/{subject}', [UserController::class, 'subscribeToSubject']);
+    Route::post('/users/unsubscribe/{university}/{career}/{subject}', [UserController::class, 'unsubscribeFromSubject']);
 });
