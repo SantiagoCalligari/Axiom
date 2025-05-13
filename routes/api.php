@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CareerController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UniversityController;
@@ -52,6 +53,7 @@ Route::get('/university/{university}/career/{career}/subjects', [SubjectControll
 Route::get('/university/{university}/career/{career}/subject/{subject}', [SubjectController::class, 'show']);
 Route::get('/university/{university}/career/{career}/subject/{subject}/exams', [ExamController::class, 'index']);
 Route::get('/university/{university}/career/{career}/subject/{subject}/exam/{exam}', [ExamController::class, 'show']);
+Route::get('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments', [CommentController::class, 'index']);
 
 
 // --- Authenticated Routes ---
@@ -98,4 +100,10 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/users/subscribe/{university}/{career}/{subject}', [UserController::class, 'subscribeToSubject']);
     Route::post('/users/unsubscribe/{university}/{career}/{subject}', [UserController::class, 'unsubscribeFromSubject']);
+
+    // Rutas para comentarios
+    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments', [CommentController::class, 'store']);
+    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}', [CommentController::class, 'update']);
+    Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}', [CommentController::class, 'destroy']);
+    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}/vote', [CommentController::class, 'vote']);
 });
