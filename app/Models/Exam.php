@@ -64,5 +64,15 @@ class Exam extends Model
         return $this->belongsTo(Subject::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->whereNull('parent_id');
+    }
+
+    public function allComments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     // Relationships for difficulty, notes, books will come later
 }
