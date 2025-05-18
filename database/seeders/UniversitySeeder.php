@@ -348,7 +348,11 @@ class UniversitySeeder extends Seeder
                         $randomYear = rand(date('Y') - 3, date('Y'));
                         $randomSemester = rand(1, 2) . 'C ' . $randomYear;
                         $randomIsResolved = (bool)rand(0, 1);
-                        $randomExamType = (rand(0, 1) === 1) ? 'parcial' : 'final';
+
+                        // Elegir aleatoriamente entre 'midterm', 'retake' o 'final'
+                        $examTypes = ['midterm', 'retake', 'final'];
+                        $randomExamType = $examTypes[array_rand($examTypes)];
+
                         $randomDate = Carbon::now()->subDays(rand(0, 365))->toDateString();
                         // Título más variado
                         $examTitle = "Examen " . Str::ucfirst($randomExamType) . " " . $subject->name . " #" . ($i + 1) . " - " . $randomSemester;
