@@ -31,7 +31,7 @@ class StoreExamRequest extends FormRequest
             'semester' => ['nullable', 'string', 'max:50'],
             'year' => ['nullable', 'integer', 'min:1900', 'max:' . (date('Y') + 1)], // Year cannot be too far in the future
             'is_resolved' => ['nullable', 'boolean'],
-            'exam_type' => ['required', 'string', Rule::in(['midterm', 'final'])],
+            'exam_type' => ['required', 'string', Rule::in(['midterm', 'final', 'retake'])],
             'exam_date' => ['nullable', 'date'],
         ];
     }
