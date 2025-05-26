@@ -385,6 +385,65 @@ class UniversitySeeder extends Seeder
                             if (is_resource($stream)) fclose($stream);
                         }
 
+                        $examText = <<<'EOT'
+# Facultad de Ciencias Exactas, Ingeniería y Agrimensura
+## Departamento de Matemática - Escuela de Ciencias Exactas y Naturales
+### Álgebra Lineal - LCC, LSI, PM - 2024
+
+---
+
+**Primera Evaluación Parcial - 22/04/2024**
+
+**Apellido y nombres:** _________________ **Carrera:** _________________
+
+---
+
+### 1. Sean
+
+$$\mathbf{u} = \begin{pmatrix} 1 \\ 4 \\ -3 \end{pmatrix}, \quad \mathbf{v} = \begin{pmatrix} 5 \\ -2 \\ 1 \end{pmatrix} \quad \text{donde } \mathbf{u}, \mathbf{v} \in \mathbb{R}^3$$
+
+una función $T: \mathbb{R}_{2}[x] \to \mathbb{R}^4$ definida por $T(ax^2 + bx + c) = (a-c, 2a+b, a+b+c, b-c)$
+
+**(a)** Pruebe que $V = \{p \in \mathbb{R}_2[x] : p(1) = 0\}$ es un $\mathbb{R}$-espacio vectorial (sin la suma y producto por escalar usuales de matrices).
+
+**(b)** De una base $\mathcal{B}$ de $V$ y su dimensión. Justifique su respuesta.
+
+**(c)** Pruebe que $T$ es una transformación lineal.
+
+**(d)** Calcule $\ker T$ y $\text{Im} T$. Determine si $T$ es un monomorfismo, un epimorfismo o un isomorfismo. Justifique su respuesta.
+
+**(e)** Halle la matriz asociada a $T$ respecto de la base $\mathcal{B}$ de $V$ (respecto que se base) y $\mathcal{B}_0$ (del $\mathbb{R}^4$) donde $T : V \to \mathbb{R}^4$.
+
+---
+
+### 2. Sea la base $\mathcal{B}^* = \{v_1, v_2, v_3\}$ donde
+
+$v_1 = \begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix}, \quad v_2 = \begin{pmatrix} 1 \\ 1 \\ 0 \end{pmatrix}, \quad v_3 = \begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix}$
+
+y la función $g: \mathbb{R}^3 \to \mathbb{R}^3$ tal que $g(x) = Ax$, donde $A \in \mathbb{R}^{3 \times 3}$ se dada por
+
+$(x,y) = x_1y_1 - 2x_1y_2 - 4x_1y_3 + 2x_2y_1 + 4x_2y_2$
+
+**(a)** Pruebe que la función $(\cdot,\cdot)$ define un producto interno en $\mathbb{R}^3$. De una matriz $G$ la base $\mathcal{B}_0$.
+
+**(b)** Sea $\mathcal{S} = \{w_1, w_2, w_3\}$ donde $w_i$ de la base canónica $\{e_1, e_2, e_3\}$ y es que el producto interno $(\cdot, \cdot)$.
+
+**(c)** Calcule la proyección de $v = (1, 1, 1)$ sobre $\mathcal{S}$.
+
+---
+
+### 3. Justifique las siguientes afirmaciones o dé un contraejemplo. Justifique su respuesta.
+
+**(a)** Sea $U$ un $\mathcal{F}$-ev de dimensión $3$. Sean $T : U \to U$ de transformación $V$ de dimensión $4$ con intersección trivial. Entonces $(T + V)$ es de dimensión $7$.
+
+**(b)** Sea $V$ un espacio vectorial real con producto interno $(\cdot, \cdot)$. Sean $B_1, B_2$ bases de $V$, sea la matriz del producto interno respecto de la base $B_1$ es $G_1$ y respecto de la base $B_2$ es $G_2$, ¿es $G_1 = G_2$?
+
+**(c)** Si $U$ y $W$ son dos subespacios de un espacio euclidiano $V$ de dimensión finita tal que se suman de manera directa entonces $(U \oplus W)^{\perp} = U^{\perp} \cap W^{\perp}$.
+
+**(d)** Sea $T \in \mathcal{L}(X, Y)$. Entonces la función $\|T\| : \mathbb{R}^+ \to \mathbb{R}^+$. $A$ define $\|T(x)\| = \|T\| \cdot \|x\|$ es una forma bilineal.
+
+---
+EOT;
                         // Crear el registro del examen
                         Exam::create([
                             'user_id' => $dummyUser->id,
@@ -400,7 +459,7 @@ class UniversitySeeder extends Seeder
                             'original_file_name' => $targetFileName,
                             'mime_type' => $dummyMimeType,
                             'file_size' => $dummyFileSize,
-                            'ocr_text' => null,
+                            'ocr_text' => $examText,
                             // 'slug' => Str::slug($examTitle . '-' . uniqid()) // Generar slug si es necesario
                         ]);
 
