@@ -19,6 +19,7 @@ class Comment extends Model
         'content',
         'upvotes',
         'downvotes',
+        'comment_type'
     ];
 
     protected $casts = [

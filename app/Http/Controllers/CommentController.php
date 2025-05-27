@@ -41,7 +41,6 @@ class CommentController extends Controller
             // For now, let's assume valid route binding.
         }
 
-
         // Start with top-level comments for the given exam (where parent_id is null)
         $comment_query = $exam->comments()
             ->whereNull('parent_id')
@@ -55,6 +54,12 @@ class CommentController extends Controller
                 }
             ]);
 
+        // Por defecto mostrar solo comentarios de examen, a menos que se especifique resolution=true
+        if ($request->boolean('resolution')) {
+            $comment_query->where('comment_type', 'resolution');
+        } else {
+            $comment_query->where('comment_type', 'exam');
+        }
 
         // Sorting parameters
         $sortBy = $request->query('sort_by', 'created_at');
@@ -105,6 +110,11 @@ class CommentController extends Controller
             abort(404, 'Exam not found in the specified subject, career, or university.');
         }
 
+        // Verificar que el examen tenga una resolución si el comentario es de tipo 'resolution'
+        if ($request->comment_type === 'resolution' && !$exam->resolution()->exists()) {
+            return response()->json(['message' => 'No se pueden agregar comentarios de resolución a un examen que no tiene resolución'], 422);
+        }
+
         // Check if the parent_id is valid and belongs to the same exam if provided
         if ($request->parent_id) {
             $parentComment = Comment::where('exam_id', $exam->id)
@@ -119,6 +129,7 @@ class CommentController extends Controller
             'exam_id' => $exam->id,
             'parent_id' => $request->parent_id,
             'content' => $request->content,
+            'comment_type' => $request->comment_type ?? 'exam', // Default to 'exam' if not specified
         ]);
 
         // Handle attachments
