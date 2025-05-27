@@ -13,6 +13,9 @@ class PermissionsSeeder extends Seeder
      */
     public function run(): void
     {
+        // Eliminar permisos existentes
+        Permission::query()->delete();
+
         Permission::query()->create([
             'name' => 'store university',
             'guard_name' => 'api',
@@ -39,6 +42,18 @@ class PermissionsSeeder extends Seeder
         ]);
         Permission::query()->create([
             'name' => 'modify user roles',
+            'guard_name' => 'api',
+        ]);
+        Permission::query()->create([
+            'name' => 'manage university admins',
+            'guard_name' => 'api',
+        ]);
+        Permission::query()->create([
+            'name' => 'manage career admins',
+            'guard_name' => 'api',
+        ]);
+        Permission::query()->create([
+            'name' => 'manage subject admins',
             'guard_name' => 'api',
         ]);
     }
