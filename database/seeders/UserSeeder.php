@@ -21,5 +21,29 @@ class UserSeeder extends Seeder
             'password' => bcrypt('muriel'),
             'name' => 'Santiago Calligari',
         ]);
+
+        // Crear algunos profesores
+        $teachers = [
+            [
+                'email' => 'profesor1@example.com',
+                'password' => bcrypt('password'),
+                'name' => 'Profesor Uno',
+            ],
+            [
+                'email' => 'profesor2@example.com',
+                'password' => bcrypt('password'),
+                'name' => 'Profesor Dos',
+            ],
+            [
+                'email' => 'profesor3@example.com',
+                'password' => bcrypt('password'),
+                'name' => 'Profesor Tres',
+            ],
+        ];
+
+        foreach ($teachers as $teacher) {
+            $user = User::query()->create($teacher);
+            $user->assignRole('teacher');
+        }
     }
 }

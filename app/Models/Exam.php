@@ -74,5 +74,10 @@ class Exam extends Model
         return $this->hasMany(Comment::class);
     }
 
+    public function resolution()
+    {
+        return $this->hasOne(Resolution::class);
+    }
+
     // Relationships for difficulty, notes, books will come later
 }
