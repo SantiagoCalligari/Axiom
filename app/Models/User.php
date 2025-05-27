@@ -51,4 +51,36 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Subject::class);
     }
+
+    // Relaciones para roles administrativos específicos
+    public function adminUniversities()
+    {
+        return $this->belongsToMany(University::class, 'university_admin');
+    }
+
+    public function adminCareers()
+    {
+        return $this->belongsToMany(Career::class, 'career_admin');
+    }
+
+    public function adminSubjects()
+    {
+        return $this->belongsToMany(Subject::class, 'subject_admin');
+    }
+
+    // Relaciones para suscripciones
+    public function subscribedUniversities()
+    {
+        return $this->belongsToMany(University::class, 'university_user');
+    }
+
+    public function subscribedCareers()
+    {
+        return $this->belongsToMany(Career::class, 'career_user');
+    }
+
+    public function subscribedSubjects()
+    {
+        return $this->belongsToMany(Subject::class, 'subject_user');
+    }
 }

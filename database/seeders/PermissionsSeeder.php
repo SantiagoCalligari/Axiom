@@ -56,5 +56,17 @@ class PermissionsSeeder extends Seeder
             'name' => 'manage subject admins',
             'guard_name' => 'api',
         ]);
+        Permission::query()->create([
+            'name' => 'manage resolutions',
+            'guard_name' => 'api',
+        ]);
+        Permission::query()->create([
+            'name' => 'manage comments',
+            'guard_name' => 'api',
+        ]);
+        Permission::query()->create([
+            'name' => 'vote comments',
+            'guard_name' => 'api',
+        ]);
     }
 }
