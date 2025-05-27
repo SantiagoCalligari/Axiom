@@ -24,18 +24,23 @@ class RoleSeeder extends Seeder
         $admin_role->givePermissionTo('store exam');
         $admin_role->givePermissionTo('modify roles');
         $admin_role->givePermissionTo('modify user roles');
+        $admin_role->givePermissionTo('manage resolutions');
+        $admin_role->givePermissionTo('manage comments');
 
         $teacher_role = Role::query()->create([
             'name' => 'teacher',
             'guard_name' => 'api',
         ]);
         $teacher_role->givePermissionTo('store exam');
+        $teacher_role->givePermissionTo('manage resolutions');
+        $teacher_role->givePermissionTo('manage comments');
 
         $user_role = Role::query()->create([
             'name' => 'user',
             'guard_name' => 'api',
         ]);
         $user_role->givePermissionTo('store exam');
+        $user_role->givePermissionTo('vote comments');
 
         $university_admin_role = Role::query()->create([
             'name' => 'university_admin',

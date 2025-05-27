@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UserResourceCollection;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
@@ -11,9 +12,38 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Subject;
 use App\Models\University;
 use App\Models\Career;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    public function index(Request $request): UserResourceCollection
+    {
+        $users = User::query()->with('roles');
+
+        // Filtrar por nombre
+        if ($request->has('search') && !empty($request->query('search'))) {
+            $searchTerm = $request->query('search');
+            $users->where(function($query) use ($searchTerm) {
+                $query->where('name', 'LIKE', '%' . $searchTerm . '%')
+                      ->orWhere('email', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Filtrar por rol
+        if ($request->has('role') && !empty($request->query('role'))) {
+            $role = $request->query('role');
+            $users->whereHas('roles', function($query) use ($role) {
+                $query->where('name', $role);
+            });
+        }
+
+        // Paginación
+        $limit = $request->query('limit', 10);
+        $users->limit($limit);
+
+        return new UserResourceCollection($users->get());
+    }
+
     public function store(StoreUserRequest $request): UserResource
     {
         $user = User::query()->create($request->validated());

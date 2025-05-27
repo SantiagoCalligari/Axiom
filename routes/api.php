@@ -6,6 +6,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UniversityController;
+use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ResolutionController;
 use App\Models\Permission;
@@ -71,6 +72,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/universities', [UniversityController::class, 'store'])->can(Permission::STORE_UNIVERSITY); // Create new university
     Route::post('/university/{university}', [UniversityController::class, 'update'])->can(Permission::STORE_UNIVERSITY); // Update specific university
     Route::delete('/university/{university}', [UniversityController::class, 'destroy'])->can(Permission::DELETE_UNIVERSITY); // Delete specific university
+    Route::post('/university/{university}/subscribe', [SubscriptionController::class, 'subscribeToUniversity']);
+    Route::post('/university/{university}/unsubscribe', [SubscriptionController::class, 'unsubscribeFromUniversity']);
 
     /*
     // Alternative using Route::resource for authenticated university actions:
@@ -87,12 +90,16 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/university/{university}/careers', [CareerController::class, 'store'])->can(Permission::STORE_CAREER);
     Route::post('/university/{university}/career/{career}', [CareerController::class, 'update'])->can(Permission::STORE_CAREER);
     Route::delete('/university/{university}/career/{career}', [CareerController::class, 'destroy'])->can(Permission::DELETE_CAREER);
+    Route::post('/university/{university}/career/{career}/subscribe', [SubscriptionController::class, 'subscribeToCareer']);
+    Route::post('/university/{university}/career/{career}/unsubscribe', [SubscriptionController::class, 'unsubscribeFromCareer']);
 
 
     // subjects Management (Authenticated Actions)
     Route::post('/university/{university}/career/{career}/subjects', [SubjectController::class, 'store']);
     Route::post('/university/{university}/career/{career}/subject/{subject}', [SubjectController::class, 'update']);
     Route::delete('/university/{university}/career/{career}/subject/{subject}', [SubjectController::class, 'destroy']);
+    Route::post('/university/{university}/career/{career}/subject/{subject}/subscribe', [SubscriptionController::class, 'subscribeToSubject']);
+    Route::post('/university/{university}/career/{career}/subject/{subject}/unsubscribe', [SubscriptionController::class, 'unsubscribeFromSubject']);
 
     Route::post('/university/{university}/career/{career}/subject/{subject}/exams', [ExamController::class, 'store']);
     Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}', [ExamController::class, 'update']);
@@ -118,4 +125,11 @@ Route::middleware('auth:api')->group(function () {
     // Gestión de roles jerárquicos
     Route::post('/users/{user}/assign-role', [\App\Http\Controllers\RoleManagementController::class, 'assignRole']);
     Route::post('/users/{user}/remove-role', [\App\Http\Controllers\RoleManagementController::class, 'removeRole']);
+
+    Route::get('/admin/roles/assignable', [\App\Http\Controllers\RoleManagementController::class, 'assignableRoles']);
+    Route::get('/admin/users', [UserController::class, 'index']);
+
+    // Rutas para suscripciones
+    
+    Route::get('/subscriptions', [SubscriptionController::class, 'getUserSubscriptions']);
 });

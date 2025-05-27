@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Laravel\Passport\PersonalAccessTokenResult;
 use Laravel\Passport\Token;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -25,6 +26,13 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'expires_at' => $token->token->expires_at,
         ]);
+    }
+
+    public function user(Request $request)
+    {
+        $user = $request->user();
+        $user->load(['roles', 'adminUniversities', 'adminCareers', 'adminSubjects']);
+        return response()->json($user);
     }
 
 }
