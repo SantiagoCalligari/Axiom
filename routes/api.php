@@ -114,4 +114,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/resolution', [ResolutionController::class, 'store']);
     Route::put('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/resolution', [ResolutionController::class, 'update']);
     Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/resolution', [ResolutionController::class, 'destroy']);
+
+    // Gestión de roles jerárquicos
+    Route::post('/users/{user}/assign-role', [\App\Http\Controllers\RoleManagementController::class, 'assignRole']);
+    Route::post('/users/{user}/remove-role', [\App\Http\Controllers\RoleManagementController::class, 'removeRole']);
 });

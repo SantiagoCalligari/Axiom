@@ -10,6 +10,9 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
+        // Eliminar roles existentes
+        Role::query()->delete();
+
         $admin_role = Role::query()->create([
             'name' => 'admin',
             'guard_name' => 'api'
@@ -33,5 +36,30 @@ class RoleSeeder extends Seeder
             'guard_name' => 'api',
         ]);
         $user_role->givePermissionTo('store exam');
+
+        $university_admin_role = Role::query()->create([
+            'name' => 'university_admin',
+            'guard_name' => 'api',
+        ]);
+        $university_admin_role->givePermissionTo('store university');
+        $university_admin_role->givePermissionTo('delete university');
+        $university_admin_role->givePermissionTo('store career');
+        $university_admin_role->givePermissionTo('delete career');
+        $university_admin_role->givePermissionTo('manage career admins');
+
+        $career_admin_role = Role::query()->create([
+            'name' => 'career_admin',
+            'guard_name' => 'api',
+        ]);
+        $career_admin_role->givePermissionTo('store career');
+        $career_admin_role->givePermissionTo('delete career');
+        $career_admin_role->givePermissionTo('store exam');
+        $career_admin_role->givePermissionTo('manage subject admins');
+
+        $subject_admin_role = Role::query()->create([
+            'name' => 'subject_admin',
+            'guard_name' => 'api',
+        ]);
+        $subject_admin_role->givePermissionTo('store exam');
     }
 }
