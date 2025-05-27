@@ -61,7 +61,17 @@ class UserController extends Controller
     public function show(): UserResource
     {
         $user = Auth::user();
-        $user->load(['roles', 'subjects.career.university']);
+        $user->load('roles');
+
+        // Cargar relaciones según el rol más relevante
+        if ($user->hasRole('university_admin')) {
+            $user->load('adminUniversities');
+        } elseif ($user->hasRole('career_admin')) {
+            $user->load('adminCareers');
+        } elseif ($user->hasRole('subject_admin')) {
+            $user->load('adminSubjects');
+        }
+
         return new UserResource($user);
     }
 
@@ -71,6 +81,51 @@ class UserController extends Controller
             return response()->json(['message' => 'No tienes permiso para realizar esta acción'], 403);
         }
         $user->assignRole('teacher');
+        return new UserResource($user);
+    }
+
+    public function assignRole(Request $request, User $user)
+    {
+        if (!$this->authorize('modify user roles')) {
+            return response()->json(['message' => 'No tienes permiso para realizar esta acción'], 403);
+        }
+
+        $role = $request->input('role');
+        $entityId = null;
+
+        // Determinar el ID de la entidad según el rol
+        switch ($role) {
+            case 'university_admin':
+                $entityId = $request->input('university_id');
+                if (!$entityId) {
+                    return response()->json(['message' => 'Se requiere el ID de la universidad'], 400);
+                }
+                $user->assignRole('university_admin');
+                $user->adminUniversities()->attach($entityId);
+                break;
+
+            case 'career_admin':
+                $entityId = $request->input('career_id');
+                if (!$entityId) {
+                    return response()->json(['message' => 'Se requiere el ID de la carrera'], 400);
+                }
+                $user->assignRole('career_admin');
+                $user->adminCareers()->attach($entityId);
+                break;
+
+            case 'subject_admin':
+                $entityId = $request->input('subject_id');
+                if (!$entityId) {
+                    return response()->json(['message' => 'Se requiere el ID de la materia'], 400);
+                }
+                $user->assignRole('subject_admin');
+                $user->adminSubjects()->attach($entityId);
+                break;
+
+            default:
+                return response()->json(['message' => 'Rol no válido'], 400);
+        }
+
         return new UserResource($user);
     }
 

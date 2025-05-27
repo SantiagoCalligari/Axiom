@@ -63,10 +63,52 @@ class SubscriptionController extends Controller
     public function getUserSubscriptions()
     {
         $user = Auth::user();
+        
+        // Cargar las relaciones con sus slugs
+        $universities = $user->subscribedUniversities()->get();
+        $careers = $user->subscribedCareers()->with('university:id,name,slug')->get();
+        $subjects = $user->subscribedSubjects()->with(['career:id,name,slug', 'career.university:id,name,slug'])->get();
+
         return response()->json([
-            'universities' => $user->subscribedUniversities,
-            'careers' => $user->subscribedCareers,
-            'subjects' => $user->subscribedSubjects
+            'universities' => $universities->map(function ($university) {
+                return [
+                    'id' => $university->id,
+                    'name' => $university->name,
+                    'slug' => $university->slug,
+                    'description' => $university->description
+                ];
+            }),
+            'careers' => $careers->map(function ($career) {
+                return [
+                    'id' => $career->id,
+                    'name' => $career->name,
+                    'slug' => $career->slug,
+                    'description' => $career->description,
+                    'university' => [
+                        'id' => $career->university->id,
+                        'name' => $career->university->name,
+                        'slug' => $career->university->slug
+                    ]
+                ];
+            }),
+            'subjects' => $subjects->map(function ($subject) {
+                return [
+                    'id' => $subject->id,
+                    'name' => $subject->name,
+                    'slug' => $subject->slug,
+                    'description' => $subject->description,
+                    'career' => [
+                        'id' => $subject->career->id,
+                        'name' => $subject->career->name,
+                        'slug' => $subject->career->slug,
+                        'university' => [
+                            'id' => $subject->career->university->id,
+                            'name' => $subject->career->university->name,
+                            'slug' => $subject->career->university->slug
+                        ]
+                    ]
+                ];
+            })
         ]);
     }
 } 

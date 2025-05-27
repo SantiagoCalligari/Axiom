@@ -53,13 +53,8 @@ class RoleManagementController extends Controller
                 case 'career_admin':
                     $career = Career::findOrFail($request->input('career_id'));
                     $user->adminCareers()->syncWithoutDetaching([$career->id]);
-                    // Suscribir automáticamente a la carrera y su universidad
+                    // Solo suscribir a la carrera
                     $user->subscribedCareers()->syncWithoutDetaching([$career->id]);
-                    $user->subscribedUniversities()->syncWithoutDetaching([$career->university_id]);
-                    // Asignar automáticamente como admin de todas las materias de la carrera
-                    $user->adminSubjects()->syncWithoutDetaching($career->subjects->pluck('id'));
-                    // Suscribir automáticamente a todas las materias de la carrera
-                    $user->subscribedSubjects()->syncWithoutDetaching($career->subjects->pluck('id'));
                     break;
 
                 case 'subject_admin':
