@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             UniversitySeeder::class,
             CommentSeeder::class,
+            ResolutionSeeder::class,
         ]);
     }
 }

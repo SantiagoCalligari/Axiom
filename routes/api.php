@@ -7,6 +7,7 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\UniversityController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ResolutionController;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Route;
 
@@ -54,6 +55,7 @@ Route::get('/university/{university}/career/{career}/subject/{subject}', [Subjec
 Route::get('/university/{university}/career/{career}/subject/{subject}/exams', [ExamController::class, 'index']);
 Route::get('/university/{university}/career/{career}/subject/{subject}/exam/{exam}', [ExamController::class, 'show']);
 Route::get('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments', [CommentController::class, 'index']);
+Route::get('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/resolution', [ResolutionController::class, 'show']);
 
 
 // --- Authenticated Routes ---
@@ -106,4 +108,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}', [CommentController::class, 'update']);
     Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}', [CommentController::class, 'destroy']);
     Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}/vote', [CommentController::class, 'vote']);
+
+    // Rutas para resoluciones (una por examen)
+    // Solo los profesores pueden gestionar las resoluciones
+    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/resolution', [ResolutionController::class, 'store']);
+    Route::put('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/resolution', [ResolutionController::class, 'update']);
+    Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/resolution', [ResolutionController::class, 'destroy']);
 });

@@ -12,6 +12,7 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "livewire/livewire": "^3.5",
+        "setasign/fpdf": "^1.8",
         "spatie/laravel-permission": "^6.9"
     },
     "require-dev": {
