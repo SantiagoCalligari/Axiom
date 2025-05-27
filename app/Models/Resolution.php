@@ -17,7 +17,6 @@ class Resolution extends Model
         'original_file_name',
         'mime_type',
         'file_size',
-        'comments',
     ];
 
     public function getDownloadUrlAttribute(): ?string
