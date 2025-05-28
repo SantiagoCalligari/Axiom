@@ -12,7 +12,22 @@ class StoreCareerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasRole(Role::ADMIN);
+        $user = $this->user();
+        if ($user->hasRole(Role::ADMIN)) {
+            return true;
+        }
+
+        if ($user->hasRole(Role::UNIVERSITY_ADMIN)) {
+             // Load the relationship if it's not already loaded
+             if (!$user->relationLoaded('adminUniversities')) {
+                 $user->load('adminUniversities');
+             }
+             $university = $this->route('university');
+            // Assuming the university ID is available in the route parameters
+            return $user->adminUniversities->contains('id', $university->id);
+        }
+
+        return false;
     }
 
     /**

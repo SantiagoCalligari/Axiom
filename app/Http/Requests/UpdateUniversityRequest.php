@@ -11,7 +11,21 @@ class UpdateUniversityRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasRole(Role::ADMIN);
+        $user = $this->user();
+        if ($user->hasRole(Role::ADMIN)) {
+            return true;
+        }
+
+        if ($user->hasRole(Role::UNIVERSITY_ADMIN)) {
+            // Load the relationship if it's not already loaded
+            if (!$user->relationLoaded('adminUniversities')) {
+                $user->load('adminUniversities');
+            }
+            $university = $this->route('university');
+            return $user->adminUniversities->contains('id', $university->id);
+        }
+
+        return false;
     }
 
     /**
@@ -23,7 +37,7 @@ class UpdateUniversityRequest extends FormRequest
     {
         return [
             'name' => ['unique:universities,name'],
-            'description' => ['string', 'max:512'],
+            'description' => ['string', 'max:2048'],
         ];
     }
 }

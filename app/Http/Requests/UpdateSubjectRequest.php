@@ -13,8 +13,61 @@ class UpdateSubjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = request()->user();
-        return $user->hasRole(Role::ADMIN) or $user->hasRole(Role::TEACHER);
+        $user = $this->user();
+
+        if ($user->hasRole(Role::ADMIN)) {
+            return true;
+        }
+
+        // Assuming 'subject' route parameter is bound to a Subject model instance
+        $subject = $this->route('subject');
+
+        // university_admin can modify subjects if they administer the university the subject's career belongs to
+        if ($user->hasRole(Role::UNIVERSITY_ADMIN)) {
+             // Assuming Subject model has career relationship loaded, and Career has university relationship loaded
+             if (!$user->relationLoaded('adminUniversities')) {
+                 $user->load('adminUniversities');
+             }
+             // Assuming subject->career relationship is loaded or accessible and has university_id or university relationship
+             if ($user->adminUniversities->contains('id', $subject->career->university_id)) {
+                 return true;
+             }
+        }
+
+        if ($user->hasRole(Role::CAREER_ADMIN)) {
+            // Check if the user administers the career the subject belongs to
+            // Assuming Subject model has career_id and User has admin_careers relationship
+             if (!$user->relationLoaded('adminCareers')) {
+                 $user->load('adminCareers');
+             }
+            if ($user->adminCareers->contains('id', $subject->career_id)) {
+                return true;
+            }
+        }
+
+        if ($user->hasRole(Role::SUBJECT_ADMIN)) {
+            // Check if the user administers this specific subject
+            // Assuming User has admin_subjects relationship
+             if (!$user->relationLoaded('adminSubjects')) {
+                 $user->load('adminSubjects');
+             }
+            if ($user->adminSubjects->contains('id', $subject->id)) {
+                return true;
+            }
+        }
+
+        if ($user->hasRole(Role::TEACHER)) {
+             // Check if the user teaches this specific subject
+             // Assuming User has teachesSubjects relationship
+             if (!$user->relationLoaded('teachesSubjects')) {
+                 $user->load('teachesSubjects');
+             }
+             if ($user->teachesSubjects->contains('id', $subject->id)) {
+                 return true;
+             }
+        }
+
+        return false;
     }
     /**
      * Get the validation rules that apply to the request.
