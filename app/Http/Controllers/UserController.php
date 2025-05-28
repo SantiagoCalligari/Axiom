@@ -65,12 +65,26 @@ class UserController extends Controller
 
         // Cargar relaciones según el rol más relevante
         if ($user->hasRole('university_admin')) {
-            $user->load('adminUniversities');
+            $user->load('adminUniversities:id,name,slug,description');
         } elseif ($user->hasRole('career_admin')) {
-            $user->load('adminCareers');
+            $user->load(['adminCareers:id,name,slug,description,university_id', 'adminCareers.university:id,name,slug']);
         } elseif ($user->hasRole('subject_admin')) {
-            $user->load('adminSubjects');
+            $user->load([
+                'adminSubjects:id,name,slug,description,career_id',
+                'adminSubjects.career:id,name,slug,university_id',
+                'adminSubjects.career.university:id,name,slug'
+            ]);
         }
+
+        // Cargar suscripciones
+        $user->load([
+            'subscribedUniversities:id,name,slug,description',
+            'subscribedCareers:id,name,slug,description,university_id',
+            'subscribedCareers.university:id,name,slug',
+            'subscribedSubjects:id,name,slug,description,career_id',
+            'subscribedSubjects.career:id,name,slug,university_id',
+            'subscribedSubjects.career.university:id,name,slug'
+        ]);
 
         return new UserResource($user);
     }
