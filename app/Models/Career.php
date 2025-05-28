@@ -40,4 +40,9 @@ class Career extends Model
     {
         return $this->hasMany(Subject::class);
     }
+
+    public function administrators()
+    {
+        return $this->belongsToMany(User::class, 'career_admin');
+    }
 }

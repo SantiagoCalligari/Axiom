@@ -49,4 +49,9 @@ class Subject extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function administrators()
+    {
+        return $this->belongsToMany(User::class, 'subject_admin');
+    }
 }

@@ -41,4 +41,9 @@ class University extends Model
     {
         return $this->hasMany(Career::class);
     }
+
+    public function administrators()
+    {
+        return $this->belongsToMany(User::class, 'university_admin');
+    }
 }
