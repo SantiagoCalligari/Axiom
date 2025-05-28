@@ -31,7 +31,7 @@ class CareerController extends Controller
      */
     public function show(University $university, Career $career): CareerResource
     {
-        $career->load('Subjects');
+        $career->load(['Subjects', 'administrators']);
         return new CareerResource($career);
     }
 

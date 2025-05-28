@@ -45,7 +45,7 @@ class UniversityController extends Controller
      */
     public function show(University $university): UniversityResource
     {
-        $university->load('Careers');
+        $university->load(['Careers', 'administrators']);
         return new UniversityResource($university);
     }
 

@@ -35,7 +35,7 @@ class SubjectController extends Controller
      */
     public function show(University $university, Career $career, Subject $subject): SubjectResource
     {
-        //devolver todos los examenes
+        $subject->load('administrators');
         return new SubjectResource($subject);
     }
 
