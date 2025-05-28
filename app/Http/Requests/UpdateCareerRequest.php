@@ -12,7 +12,32 @@ class UpdateCareerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->hasRole(Role::ADMIN);
+        $user = $this->user();
+        if ($user->hasRole(Role::ADMIN)) {
+            return true;
+        }
+
+        $career = $this->route('career'); // Assuming 'career' is the route parameter name
+
+        if ($user->hasRole(Role::UNIVERSITY_ADMIN)) {
+            // Load the relationship if it's not already loaded
+            if (!$user->relationLoaded('adminUniversities')) {
+                $user->load('adminUniversities');
+            }
+            // Check if the user administers the university associated with this career
+            return $user->adminUniversities->contains('id', $career->university_id); // Assuming career has university_id
+        }
+
+        if ($user->hasRole(Role::CAREER_ADMIN)) {
+            // Load the relationship if it's not already loaded
+            if (!$user->relationLoaded('adminCareers')) {
+                $user->load('adminCareers');
+            }
+            // Check if the user administers this specific career
+            return $user->adminCareers->contains('id', $career->id); // Assuming user has admin_careers relationship
+        }
+
+        return false;
     }
 
     /**

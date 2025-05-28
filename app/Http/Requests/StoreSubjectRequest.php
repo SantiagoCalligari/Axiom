@@ -13,8 +13,42 @@ class StoreSubjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $user = request()->user();
-        return $user->hasRole(Role::ADMIN) or $user->hasRole(Role::TEACHER);
+        $user = $this->user();
+
+        if ($user->hasRole(Role::ADMIN)) {
+            return true;
+        }
+
+        // Assuming 'career' route parameter is bound to a Career model instance
+        $career = $this->route('career');
+
+        // university_admin can create subjects if they administer the university the career belongs to
+        if ($user->hasRole(Role::UNIVERSITY_ADMIN)) {
+             // Assuming Career model has university relationship loaded
+             if (!$user->relationLoaded('adminUniversities')) {
+                 $user->load('adminUniversities');
+             }
+             if ($user->adminUniversities->contains('id', $career->university_id)) {
+                 return true;
+             }
+        }
+
+        if ($user->hasRole(Role::CAREER_ADMIN)) {
+            // Check if the user administers this specific career
+            // Assuming user has admin_careers relationship loading Career models
+             if (!$user->relationLoaded('adminCareers')) {
+                 $user->load('adminCareers');
+             }
+            return $user->adminCareers->contains('id', $career->id);
+        }
+
+        // Keep TEACHER role authorized if they were before, as the request focused on admins.
+        // If teachers should also be limited by career, further logic would be needed here.
+        if ($user->hasRole(Role::TEACHER)) {
+             return true;
+        }
+
+        return false;
     }
 
     /**
