@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -37,7 +38,7 @@ class UpdateUniversityRequest extends FormRequest
     {
         return [
             'name' => ['unique:universities,name'],
-            'description' => ['string', 'max:2048'],
+            'description' => ['string', 'max:2048', 'nullable'],
         ];
     }
 }

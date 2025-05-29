@@ -24,7 +24,7 @@ class StoreUniversityRequest extends FormRequest
     {
         return [
             'name' => ['required', 'unique:universities,name'],
-            'description' => ['string', 'max:512'],
+            'description' => ['string', 'max:512', 'nullable'],
         ];
     }
 }
