@@ -14,6 +14,18 @@ class UniversityResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'description' => $this->description,
+            'aliases' => $this->whenLoaded('aliases', function () {
+                return $this->aliases->pluck('alias');
+            }),
+            'careers' => CareerResource::collection($this->whenLoaded('Careers')),
+            'administrators' => UserResource::collection($this->whenLoaded('administrators')),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+        ];
     }
 }

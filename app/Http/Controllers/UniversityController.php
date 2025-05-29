@@ -7,8 +7,10 @@ use App\Http\Requests\UpdateUniversityRequest;
 use App\Http\Resources\UniversityResource;
 use App\Http\Resources\UniversityResourceCollection;
 use App\Models\University;
+use App\Models\UniversityAlias;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\DB;
 
 class UniversityController extends Controller
 {
@@ -21,12 +23,12 @@ class UniversityController extends Controller
 
         if ($request->has('search') && !empty($request->query('search'))) {
             $searchTerm = $request->query('search');
-            $universities->where('name', 'LIKE', '%' . $searchTerm . '%');
+            $universities = University::fuzzySearch($searchTerm);
+            return new UniversityResourceCollection($universities);
         }
 
         $limit = $request->query('limit', 5);
         $universities->limit($limit);
-
 
         return new UniversityResourceCollection($universities->get());
     }
@@ -36,8 +38,17 @@ class UniversityController extends Controller
      */
     public function store(StoreUniversityRequest $request): UniversityResource
     {
-        $university = University::query()->create($request->validated());
-        return new UniversityResource($university);
+        return DB::transaction(function () use ($request) {
+            $university = University::create($request->only(['name', 'description']));
+            
+            if ($request->has('aliases')) {
+                foreach ($request->aliases as $alias) {
+                    $university->aliases()->create(['alias' => $alias]);
+                }
+            }
+
+            return new UniversityResource($university->load('aliases'));
+        });
     }
 
     /**
@@ -54,8 +65,21 @@ class UniversityController extends Controller
      */
     public function update(UpdateUniversityRequest $request, University $university): UniversityResource
     {
-        $university->update($request->validated());
-        return new UniversityResource($university);
+        return DB::transaction(function () use ($request, $university) {
+            $university->update($request->only(['name', 'description']));
+            
+            if ($request->has('aliases')) {
+                // Eliminar alias existentes
+                $university->aliases()->delete();
+                
+                // Crear nuevos alias
+                foreach ($request->aliases as $alias) {
+                    $university->aliases()->create(['alias' => $alias]);
+                }
+            }
+
+            return new UniversityResource($university->load('aliases'));
+        });
     }
 
     /**

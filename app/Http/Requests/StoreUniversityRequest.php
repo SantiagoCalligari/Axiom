@@ -23,8 +23,10 @@ class StoreUniversityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'unique:universities,name'],
-            'description' => ['string', 'max:512', 'nullable'],
+            'name' => ['required', 'string', 'max:255', 'unique:universities'],
+            'description' => ['nullable', 'string'],
+            'aliases' => ['nullable', 'array'],
+            'aliases.*' => ['string', 'max:255', 'distinct'],
         ];
     }
 }
