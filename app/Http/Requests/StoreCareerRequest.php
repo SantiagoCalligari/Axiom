@@ -18,11 +18,11 @@ class StoreCareerRequest extends FormRequest
         }
 
         if ($user->hasRole(Role::UNIVERSITY_ADMIN)) {
-             // Load the relationship if it's not already loaded
-             if (!$user->relationLoaded('adminUniversities')) {
-                 $user->load('adminUniversities');
-             }
-             $university = $this->route('university');
+            // Load the relationship if it's not already loaded
+            if (!$user->relationLoaded('adminUniversities')) {
+                $user->load('adminUniversities');
+            }
+            $university = $this->route('university');
             // Assuming the university ID is available in the route parameters
             return $user->adminUniversities->contains('id', $university->id);
         }
@@ -39,7 +39,7 @@ class StoreCareerRequest extends FormRequest
     {
         return [
             'name' => ['string', 'required'],
-            'description' => ['string'],
+            'description' => ['string', 'nullable'],
         ];
     }
 }

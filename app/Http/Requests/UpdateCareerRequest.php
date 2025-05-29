@@ -49,7 +49,7 @@ class UpdateCareerRequest extends FormRequest
     {
         return [
             'name' => ['string'],
-            'description' => ['string'],
+            'description' => ['string', 'nullable'],
         ];
     }
 }
