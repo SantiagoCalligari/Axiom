@@ -37,8 +37,10 @@ class UpdateUniversityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['unique:universities,name'],
-            'description' => ['string', 'max:2048', 'nullable'],
+            'name' => ['sometimes', 'string', 'max:255', 'unique:universities,name,' . $this->university->id],
+            'description' => ['nullable', 'string'],
+            'aliases' => ['nullable', 'array'],
+            'aliases.*' => ['string', 'max:255', 'distinct'],
         ];
     }
 }
