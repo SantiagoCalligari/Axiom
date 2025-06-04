@@ -28,7 +28,9 @@ class ExamController extends Controller
     // Añadir parámetros de ruta e inyectar Request
     public function index(University $university, Career $career, Subject $subject, Request $request): ExamResourceCollection
     {
-        $exam_query = Exam::query()->where('subject_id', $subject->id);
+        $exam_query = Exam::query()
+            ->where('subject_id', $subject->id)
+            ->where('approval_status', 'approved'); // Solo mostrar exámenes aprobados
 
         if ($request->filled('professor')) {
             $exam_query->where('professor_name', 'LIKE', '%' . $request->query('professor') . '%');
@@ -95,9 +97,19 @@ class ExamController extends Controller
         return new ExamResource($exam);
     }
 
-    public function show(University $university, Career $career, Subject $subject, Exam $exam): ExamResource
+    public function show(University $university, Career $career, Subject $subject, Exam $exam): ExamResource|JsonResponse
     {
-        $exam->load('uploader'); // Cargar relación con el usuario que subió
+        // Verificar que el examen pertenece a la materia, carrera y universidad correctas
+        if ($exam->subject_id !== $subject->id || $subject->career_id !== $career->id || $career->university_id !== $university->id) {
+            return response()->json(['message' => 'Examen no encontrado'], 404);
+        }
+
+        // Permitir ver el examen si está aprobado o si el usuario es el subidor
+        if ($exam->approval_status !== 'approved' && $exam->user_id !== auth()->id()) {
+            return response()->json(['message' => 'No tienes permiso para ver este examen'], 403);
+        }
+
+        $exam->load('uploader');
         return new ExamResource($exam);
     }
 

@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
+use App\Models\Exam;
+use App\Observers\ExamObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,5 +22,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Exam::observe(ExamObserver::class);
     }
 }

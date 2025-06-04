@@ -129,7 +129,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/admin/roles/assignable', [\App\Http\Controllers\RoleManagementController::class, 'assignableRoles']);
     Route::get('/admin/users', [UserController::class, 'index']);
 
-    // Rutas para suscripciones
     
     Route::get('/subscriptions', [SubscriptionController::class, 'getUserSubscriptions']);
+    Route::get('/admin/exams/pending', [App\Http\Controllers\Admin\ExamController::class, 'pending']);
+    Route::post('/admin/exams/{exam}/approve', [App\Http\Controllers\Admin\ExamController::class, 'approve']);
+    Route::post('/admin/exams/{exam}/reject', [App\Http\Controllers\Admin\ExamController::class, 'reject']);
 });
