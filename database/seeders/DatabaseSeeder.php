@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             UniversitySeeder::class,
             CommentSeeder::class,
             ResolutionSeeder::class,
+            PendingExamsSeeder::class,
         ]);
     }
 }
