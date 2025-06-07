@@ -17,4 +17,6 @@ class Role extends SpatieRole
     public const CAREER_ADMIN = 'career_admin';
 
     public const SUBJECT_ADMIN = 'subject_admin';
+
+    public const STUDENT = 'student';
 }

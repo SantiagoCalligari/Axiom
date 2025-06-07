@@ -2,68 +2,61 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        // Eliminar usuarios existentes
-        User::query()->delete();
+        // Crear roles si no existen
+        $roles = [
+            Role::ADMIN => 'Administrador General',
+            Role::UNIVERSITY_ADMIN => 'Administrador de Universidad',
+            Role::CAREER_ADMIN => 'Administrador de Carrera',
+            Role::SUBJECT_ADMIN => 'Administrador de Materia',
+            Role::STUDENT => 'Estudiante',
+        ];
 
-        // Admin
-        $admin = User::query()->create([
-            'email' => 'admin@admin.com',
-            'password' => bcrypt('admin'),
-            'name' => 'Administrador',
-        ]);
-        $admin->assignRole('admin');
+        foreach ($roles as $key => $name) {
+            Role::firstOrCreate(['name' => $key], ['display_name' => $name]);
+        }
 
-        // University Admin
-        $universityAdmin = User::query()->create([
-            'email' => 'university@admin.com',
-            'password' => bcrypt('university'),
-            'name' => 'Admin Universidad',
-        ]);
-        $universityAdmin->assignRole('university_admin');
+        // Crear usuario admin si no existe
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $admin->assignRole(Role::ADMIN);
 
-        // Career Admin
-        $careerAdmin = User::query()->create([
-            'email' => 'career@admin.com',
-            'password' => bcrypt('career'),
-            'name' => 'Admin Carrera',
-        ]);
-        $careerAdmin->assignRole('career_admin');
+        // Crear usuario estudiante si no existe
+        $student = User::firstOrCreate(
+            ['email' => 'student@example.com'],
+            [
+                'name' => 'Estudiante',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $student->assignRole(Role::STUDENT);
 
-        // Subject Admin
-        $subjectAdmin = User::query()->create([
-            'email' => 'subject@admin.com',
-            'password' => bcrypt('subject'),
-            'name' => 'Admin Materia',
-        ]);
-        $subjectAdmin->assignRole('subject_admin');
+        // Crear usuarios normales
+        $users = User::factory(10)->create();
+        foreach ($users as $user) {
+            $user->assignRole(Role::STUDENT);
+        }
 
-        // Teacher
-        $teacher = User::query()->create([
-            'email' => 'teacher@example.com',
-            'password' => bcrypt('teacher'),
-            'name' => 'Profesor',
-        ]);
-        $teacher->assignRole('teacher');
-
-        // Regular User
-        $user = User::query()->create([
-            'email' => 'user@example.com',
-            'password' => bcrypt('user'),
-            'name' => 'Usuario Regular',
-        ]);
-        $user->assignRole('user');
-        $user = User::query()->create([
-            'email' => 'santiago@calligari.ar',
-            'password' => bcrypt('muriel'),
-            'name' => 'Santiago Calligari',
-        ]);
-        $user->assignRole('user');
+        // Asignar rol de estudiante a todos los usuarios que no tengan roles
+        $usersWithoutRoles = User::whereDoesntHave('roles')->get();
+        foreach ($usersWithoutRoles as $user) {
+            $user->assignRole(Role::STUDENT);
+        }
     }
 }

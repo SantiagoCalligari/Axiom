@@ -7,6 +7,9 @@ use Illuminate\Database\Seeder;
 use App\Models\Exam;
 use App\Models\Subject;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class PendingExamsSeeder extends Seeder
 {
@@ -26,26 +29,67 @@ class PendingExamsSeeder extends Seeder
             return;
         }
 
+        // Definir la ruta del archivo dummy
+        $dummyPdfSourcePath = storage_path('app/seeder_files/dummy_exam.pdf');
+
+        // Verificar si existe el archivo dummy
+        if (!File::exists($dummyPdfSourcePath)) {
+            $this->command->error("Archivo dummy PDF no encontrado en: {$dummyPdfSourcePath}");
+            return;
+        }
+
+        // Obtener información del archivo dummy
+        $dummyFileSize = File::size($dummyPdfSourcePath);
+        $dummyMimeType = File::mimeType($dummyPdfSourcePath);
+
+        // Definir el disco de almacenamiento y directorio
+        $disk = Storage::disk('public');
+        $examStoragePath = 'exams';
+
+        // Asegurar que el directorio existe
+        if (!$disk->exists($examStoragePath)) {
+            $disk->makeDirectory($examStoragePath);
+        }
+
         foreach ($subjects as $subject) {
             // Crear 2 exámenes pendientes por materia
             for ($i = 0; $i < 2; $i++) {
                 $user = $users->random();
                 
+                // Generar título y nombre de archivo
+                $examTitle = "Examen Parcial " . ($i + 1) . " - " . fake()->words(3, true);
+                $targetFileName = Str::slug($examTitle) . '-' . uniqid() . '.pdf';
+                $targetFilePath = $examStoragePath . '/' . $targetFileName;
+
+                // Copiar el archivo dummy
+                try {
+                    $disk->put($targetFilePath, File::get($dummyPdfSourcePath));
+                } catch (\Exception $e) {
+                    $this->command->error("Error al copiar el archivo dummy: " . $e->getMessage());
+                    continue;
+                }
+
+                // Verificar que el archivo se copió correctamente
+                if (!$disk->exists($targetFilePath)) {
+                    $this->command->error("Error: El archivo no se copió correctamente a {$targetFilePath}");
+                    continue;
+                }
+
                 Exam::create([
                     'user_id' => $user->id,
                     'subject_id' => $subject->id,
-                    'title' => "Examen Parcial " . ($i + 1) . " - " . fake()->words(3, true),
+                    'title' => $examTitle,
                     'professor_name' => fake()->name(),
-                    'semester' => fake()->numberBetween(1, 2),
+                    'semester' => fake()->numberBetween(1, 2) . 'C ' . fake()->year(),
                     'year' => fake()->year(),
                     'is_resolved' => fake()->boolean(),
-                    'exam_type' => fake()->randomElement(['parcial', 'final', 'recuperatorio']),
+                    'exam_type' => fake()->randomElement(['midterm', 'final', 'retake']),
                     'exam_date' => fake()->date(),
                     'approval_status' => 'pending',
-                    'file_path' => 'exams/placeholder.pdf', // Asumiendo que existe un archivo placeholder
-                    'original_file_name' => 'examen.pdf',
-                    'mime_type' => 'application/pdf',
-                    'file_size' => fake()->numberBetween(100000, 5000000),
+                    'file_path' => $targetFilePath,
+                    'original_file_name' => $targetFileName,
+                    'mime_type' => $dummyMimeType,
+                    'file_size' => $dummyFileSize,
                 ]);
             }
         }

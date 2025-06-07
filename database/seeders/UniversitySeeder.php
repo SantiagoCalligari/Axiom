@@ -460,6 +460,9 @@ EOT;
                             'mime_type' => $dummyMimeType,
                             'file_size' => $dummyFileSize,
                             'ocr_text' => $examText,
+                            'approval_status' => 'approved',
+                            'approved_by' => $dummyUser->id,
+                            'approved_at' => now(),
                             // 'slug' => Str::slug($examTitle . '-' . uniqid()) // Generar slug si es necesario
                         ]);
 
