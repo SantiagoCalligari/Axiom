@@ -66,5 +66,12 @@ class RoleSeeder extends Seeder
             'guard_name' => 'api',
         ]);
         $subject_admin_role->givePermissionTo('store exam');
+
+        $student_role = Role::query()->create([
+            'name' => 'student',
+            'guard_name' => 'api',
+        ]);
+        $student_role->givePermissionTo('store exam');
+        $student_role->givePermissionTo('vote comments');
     }
 }

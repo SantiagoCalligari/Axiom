@@ -8,6 +8,8 @@ use App\Models\Exam;
 use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Admin\ApproveExamRequest;
 use App\Http\Requests\Admin\RejectExamRequest;
+use App\Models\Role;
+use App\Http\Resources\ExamResource;
 
 class ExamController extends Controller
 {
@@ -30,9 +32,19 @@ class ExamController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Exam $exam): ExamResource|JsonResponse
     {
-        //
+        $user = auth()->user();
+
+        // Verificar permisos
+        if (!$exam->canBeApprovedBy($user)) {
+            return response()->json(['message' => 'No tienes permiso para ver este examen'], 403);
+        }
+
+        // Cargar las relaciones necesarias
+        $exam->load(['subject.career.university', 'uploader']);
+
+        return new ExamResource($exam);
     }
 
     /**
@@ -54,6 +66,30 @@ class ExamController extends Controller
     public function pending(Request $request): JsonResponse
     {
         $query = Exam::pending()->with(['subject.career.university', 'uploader']);
+        $user = $request->user();
+
+        // Si es admin general, puede ver todos los exámenes
+        if (!$user->hasRole(Role::ADMIN)) {
+            // Si es admin de universidad, ver solo exámenes de su universidad
+            if ($user->hasRole(Role::UNIVERSITY_ADMIN)) {
+                $universityIds = $user->adminUniversities()->select('universities.id')->pluck('id');
+                $query->whereHas('subject.career.university', function ($q) use ($universityIds) {
+                    $q->whereIn('universities.id', $universityIds);
+                });
+            }
+            // Si es admin de carrera, ver solo exámenes de su carrera
+            elseif ($user->hasRole(Role::CAREER_ADMIN)) {
+                $careerIds = $user->adminCareers()->select('careers.id')->pluck('id');
+                $query->whereHas('subject.career', function ($q) use ($careerIds) {
+                    $q->whereIn('careers.id', $careerIds);
+                });
+            }
+            // Si es admin de materia, ver solo exámenes de su materia
+            elseif ($user->hasRole(Role::SUBJECT_ADMIN)) {
+                $subjectIds = $user->adminSubjects()->select('subjects.id')->pluck('id');
+                $query->whereIn('subject_id', $subjectIds);
+            }
+        }
 
         // Filtrar por universidad si se especifica
         if ($request->has('university_id')) {

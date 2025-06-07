@@ -132,6 +132,7 @@ Route::middleware('auth:api')->group(function () {
     
     Route::get('/subscriptions', [SubscriptionController::class, 'getUserSubscriptions']);
     Route::get('/admin/exams/pending', [App\Http\Controllers\Admin\ExamController::class, 'pending']);
+    Route::get('/admin/exams/{exam}', [App\Http\Controllers\Admin\ExamController::class, 'show']);
     Route::post('/admin/exams/{exam}/approve', [App\Http\Controllers\Admin\ExamController::class, 'approve']);
     Route::post('/admin/exams/{exam}/reject', [App\Http\Controllers\Admin\ExamController::class, 'reject']);
 });
