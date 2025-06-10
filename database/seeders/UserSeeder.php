@@ -28,17 +28,47 @@ class UserSeeder extends Seeder
             Role::firstOrCreate(['name' => $key], ['display_name' => $name]);
         }
 
-        // Crear usuario admin si no existe
+        // Crear usuario admin general
         $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
-                'name' => 'Admin',
+                'name' => 'Admin General',
                 'password' => Hash::make('password'),
             ]
         );
         $admin->assignRole(Role::ADMIN);
 
-        // Crear usuario profesor si no existe
+        // Crear usuario admin de universidad
+        $universityAdmin = User::firstOrCreate(
+            ['email' => 'university_admin@example.com'],
+            [
+                'name' => 'Admin Universidad',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $universityAdmin->assignRole(Role::UNIVERSITY_ADMIN);
+
+        // Crear usuario admin de carrera
+        $careerAdmin = User::firstOrCreate(
+            ['email' => 'career_admin@example.com'],
+            [
+                'name' => 'Admin Carrera',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $careerAdmin->assignRole(Role::CAREER_ADMIN);
+
+        // Crear usuario admin de materia
+        $subjectAdmin = User::firstOrCreate(
+            ['email' => 'subject_admin@example.com'],
+            [
+                'name' => 'Admin Materia',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $subjectAdmin->assignRole(Role::SUBJECT_ADMIN);
+
+        // Crear usuario profesor
         $teacher = User::firstOrCreate(
             ['email' => 'teacher@example.com'],
             [
