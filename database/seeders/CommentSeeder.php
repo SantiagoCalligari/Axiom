@@ -15,15 +15,11 @@ class CommentSeeder extends Seeder
         // Eliminar comentarios existentes
         Comment::query()->delete();
 
-        // Obtener todos los exámenes y resoluciones
-        $exams = Exam::all();
-        $resolutions = Resolution::all();
-        
         // Obtener usuarios para crear comentarios
-        $users = User::role('user')->get();
+        $users = User::role('student')->get();
         
         if ($users->isEmpty()) {
-            $this->command->error('No se encontraron usuarios para crear comentarios.');
+            $this->command->error('No se encontraron estudiantes para crear comentarios.');
             return;
         }
         
@@ -41,38 +37,38 @@ class CommentSeeder extends Seeder
             '¿Hay algún tema específico que se deba enfatizar?'
         ];
 
-        // Para cada examen, crear algunos comentarios
-        foreach ($exams as $exam) {
-            // Crear entre 2 y 5 comentarios por examen
-            $numComments = rand(2, 5);
-            
-            for ($i = 0; $i < $numComments; $i++) {
-                Comment::create([
-                    'exam_id' => $exam->id,
-                    'user_id' => $users->random()->id,
-                    'content' => $commentPhrases[array_rand($commentPhrases)],
-                    'comment_type' => 'exam',
-                    'upvotes' => rand(0, 10),
-                    'downvotes' => rand(0, 5)
-                ]);
+        // Procesar exámenes en lotes de 100
+        Exam::query()->chunk(100, function ($exams) use ($users, $commentPhrases) {
+            foreach ($exams as $exam) {
+                // Crear exactamente 2 comentarios por examen
+                for ($i = 0; $i < 2; $i++) {
+                    Comment::create([
+                        'exam_id' => $exam->id,
+                        'user_id' => $users->random()->id,
+                        'content' => $commentPhrases[array_rand($commentPhrases)],
+                        'comment_type' => 'exam',
+                        'upvotes' => rand(0, 10),
+                        'downvotes' => rand(0, 5)
+                    ]);
+                }
             }
-        }
+        });
 
-        // Para cada resolución, crear algunos comentarios
-        foreach ($resolutions as $resolution) {
-            // Crear entre 2 y 5 comentarios por resolución
-            $numComments = rand(2, 5);
-            
-            for ($i = 0; $i < $numComments; $i++) {
-                Comment::create([
-                    'exam_id' => $resolution->exam_id,
-                    'user_id' => $users->random()->id,
-                    'content' => $commentPhrases[array_rand($commentPhrases)],
-                    'comment_type' => 'resolution',
-                    'upvotes' => rand(0, 10),
-                    'downvotes' => rand(0, 5)
-                ]);
+        // Procesar resoluciones en lotes de 100
+        Resolution::query()->chunk(100, function ($resolutions) use ($users, $commentPhrases) {
+            foreach ($resolutions as $resolution) {
+                // Crear exactamente 2 comentarios por resolución
+                for ($i = 0; $i < 2; $i++) {
+                    Comment::create([
+                        'exam_id' => $resolution->exam_id,
+                        'user_id' => $users->random()->id,
+                        'content' => $commentPhrases[array_rand($commentPhrases)],
+                        'comment_type' => 'resolution',
+                        'upvotes' => rand(0, 10),
+                        'downvotes' => rand(0, 5)
+                    ]);
+                }
             }
-        }
+        });
     }
 } 
