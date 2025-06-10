@@ -21,11 +21,11 @@ class PendingExamsSeeder extends Seeder
         // Obtener todas las materias
         $subjects = Subject::all();
         
-        // Obtener algunos usuarios normales para subir los exámenes
-        $users = User::role('user')->take(5)->get();
+        // Obtener algunos usuarios estudiantes para subir los exámenes
+        $users = User::role('student')->take(5)->get();
         
         if ($users->isEmpty()) {
-            $this->command->error('No hay usuarios normales para subir exámenes. Por favor, crea algunos usuarios primero.');
+            $this->command->error('No hay estudiantes para subir exámenes. Por favor, crea algunos estudiantes primero.');
             return;
         }
 

@@ -334,15 +334,15 @@ class UniversitySeeder extends Seeder
                         ['career_id' => $career->id, 'name' => $subjectName],
                         ['slug' => $uniqueSubjectSlug]
                     );
-                    $this->command->info("    Processing Subject: {$subject->name} - Creating 50 exams...");
+                    $this->command->info("    Processing Subject: {$subject->name} - Creating 5 exams...");
 
-                    // --- Crear 50 Exámenes por Materia ---
+                    // --- Crear 5 Exámenes por Materia ---
                     // Inicializar la barra de progreso ANTES del bucle
-                    $bar = $this->command->getOutput()->createProgressBar(50);
+                    $bar = $this->command->getOutput()->createProgressBar(5);
                     $bar->start();
 
-                    // Bucle FOR para crear 50 exámenes
-                    for ($i = 0; $i < 50; $i++) {
+                    // Bucle FOR para crear 5 exámenes
+                    for ($i = 0; $i < 5; $i++) {
                         // Generar datos aleatorios para el examen
                         $randomProfessor = $professors[array_rand($professors)];
                         $randomYear = rand(date('Y') - 3, date('Y'));
@@ -472,7 +472,7 @@ EOT;
                     // Finalizar la barra de progreso DESPUÉS del bucle for
                     $bar->finish();
                     $this->command->newLine(); // Nueva línea después de la barra de progreso
-                    // --- Fin Crear 50 Exámenes ---
+                    // --- Fin Crear 5 Exámenes ---
                 }
             }
         }

@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
             Role::UNIVERSITY_ADMIN => 'Administrador de Universidad',
             Role::CAREER_ADMIN => 'Administrador de Carrera',
             Role::SUBJECT_ADMIN => 'Administrador de Materia',
+            Role::TEACHER => 'Profesor',
             Role::STUDENT => 'Estudiante',
         ];
 
@@ -37,19 +38,25 @@ class UserSeeder extends Seeder
         );
         $admin->assignRole(Role::ADMIN);
 
-        // Crear usuario estudiante si no existe
-        $student = User::firstOrCreate(
-            ['email' => 'student@example.com'],
+        // Crear usuario profesor si no existe
+        $teacher = User::firstOrCreate(
+            ['email' => 'teacher@example.com'],
             [
-                'name' => 'Estudiante',
+                'name' => 'Profesor',
                 'password' => Hash::make('password'),
             ]
         );
-        $student->assignRole(Role::STUDENT);
+        $teacher->assignRole(Role::TEACHER);
 
-        // Crear usuarios normales
-        $users = User::factory(10)->create();
-        foreach ($users as $user) {
+        // Crear más profesores
+        $teachers = User::factory(5)->create();
+        foreach ($teachers as $user) {
+            $user->assignRole(Role::TEACHER);
+        }
+
+        // Crear usuarios estudiantes
+        $students = User::factory(10)->create();
+        foreach ($students as $user) {
             $user->assignRole(Role::STUDENT);
         }
 
