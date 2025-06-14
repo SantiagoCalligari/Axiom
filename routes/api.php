@@ -112,9 +112,9 @@ Route::middleware('auth:api')->group(function () {
 
     // Rutas para comentarios
     Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments', [CommentController::class, 'store']);
-    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}', [CommentController::class, 'update']);
-    Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}', [CommentController::class, 'destroy']);
-    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}/vote', [CommentController::class, 'vote']);
+    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments/{comment}', [CommentController::class, 'update']);
+    Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments/{comment}', [CommentController::class, 'destroy']);
+    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments/{comment}/vote', [CommentController::class, 'vote']);
 
     // Rutas para resoluciones (una por examen)
     // Solo los profesores pueden gestionar las resoluciones
