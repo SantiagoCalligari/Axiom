@@ -232,12 +232,38 @@ class CommentController extends Controller
      */
     public function destroy(University $university, Career $career, Subject $subject, Exam $exam, Comment $comment): HttpJsonResponse
     {
+        \Log::info('Intentando eliminar comentario', [
+            'comment_id' => $comment->id,
+            'exam_id' => $exam->id,
+            'subject_id' => $subject->id,
+            'career_id' => $career->id,
+            'university_id' => $university->id,
+            'comment_exam_id' => $comment->exam_id,
+            'exam_subject_id' => $exam->subject_id,
+            'subject_career_id' => $subject->career_id,
+            'career_university_id' => $career->university_id
+        ]);
+
         // Ensure the comment belongs to the correct exam/subject/career/university
         if ($comment->exam_id !== $exam->id || $exam->subject_id !== $subject->id || $subject->career_id !== $career->id || $career->university_id !== $university->id) {
+            \Log::error('Error al eliminar comentario: no coincide con la jerarquía', [
+                'comment_exam_id' => $comment->exam_id,
+                'exam_id' => $exam->id,
+                'exam_subject_id' => $exam->subject_id,
+                'subject_id' => $subject->id,
+                'subject_career_id' => $subject->career_id,
+                'career_id' => $career->id,
+                'career_university_id' => $career->university_id,
+                'university_id' => $university->id
+            ]);
             abort(404, 'Comment not found in the specified exam, subject, career, or university.');
         }
 
         if (Auth::id() !== $comment->user_id) {
+            \Log::error('Error al eliminar comentario: usuario no autorizado', [
+                'auth_id' => Auth::id(),
+                'comment_user_id' => $comment->user_id
+            ]);
             return response()->json(['message' => 'No tienes permiso para eliminar este comentario'], 403);
         }
 
@@ -255,6 +281,8 @@ class CommentController extends Controller
         }
 
         $comment->delete(); // This should also cascade delete replies and their attachments if configured in the database schema.
+
+        \Log::info('Comentario eliminado exitosamente', ['comment_id' => $comment->id]);
 
         return response()->json(['message' => 'Comentario eliminado exitosamente']);
     }
