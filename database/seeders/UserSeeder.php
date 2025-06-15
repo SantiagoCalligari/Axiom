@@ -33,6 +33,7 @@ class UserSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin General',
+                'display_name' => 'Administrador General',
                 'password' => Hash::make('password'),
             ]
         );
@@ -43,6 +44,7 @@ class UserSeeder extends Seeder
             ['email' => 'university_admin@example.com'],
             [
                 'name' => 'Admin Universidad',
+                'display_name' => 'Administrador de Universidad',
                 'password' => Hash::make('password'),
             ]
         );
@@ -53,6 +55,7 @@ class UserSeeder extends Seeder
             ['email' => 'career_admin@example.com'],
             [
                 'name' => 'Admin Carrera',
+                'display_name' => 'Administrador de Carrera',
                 'password' => Hash::make('password'),
             ]
         );
@@ -63,6 +66,7 @@ class UserSeeder extends Seeder
             ['email' => 'subject_admin@example.com'],
             [
                 'name' => 'Admin Materia',
+                'display_name' => 'Administrador de Materia',
                 'password' => Hash::make('password'),
             ]
         );
@@ -73,19 +77,24 @@ class UserSeeder extends Seeder
             ['email' => 'teacher@example.com'],
             [
                 'name' => 'Profesor',
+                'display_name' => 'Profesor',
                 'password' => Hash::make('password'),
             ]
         );
         $teacher->assignRole(Role::TEACHER);
 
         // Crear más profesores
-        $teachers = User::factory(5)->create();
+        $teachers = User::factory(5)->create([
+            'display_name' => fn() => fake()->name() . ' (Profesor)'
+        ]);
         foreach ($teachers as $user) {
             $user->assignRole(Role::TEACHER);
         }
 
         // Crear usuarios estudiantes
-        $students = User::factory(10)->create();
+        $students = User::factory(10)->create([
+            'display_name' => fn() => fake()->name() . ' (Estudiante)'
+        ]);
         foreach ($students as $user) {
             $user->assignRole(Role::STUDENT);
         }

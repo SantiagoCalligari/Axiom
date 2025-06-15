@@ -17,6 +17,7 @@ class StoreUserRequest extends FormRequest
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:8', 'confirmed'],
             'name' => ['required', 'min:3'],
+            'display_name' => ['required', 'min:3', 'max:255'],
         ];
     }
 }

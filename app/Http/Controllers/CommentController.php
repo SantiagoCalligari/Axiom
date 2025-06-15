@@ -45,7 +45,7 @@ class CommentController extends Controller
         $comment_query = $exam->comments()
             ->whereNull('parent_id')
             ->with([
-                'user:id,name', // Load only id and name for the user
+                'user:id,name,display_name', // Load only id and name for the user
                 'attachments', // Load attachments for top-level comments
                 // Recursively load replies with their users and attachments
                 'replies' => function ($query) {

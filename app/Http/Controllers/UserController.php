@@ -20,11 +20,12 @@ class UserController extends Controller
     {
         $users = User::query()->with('roles');
 
-        // Filtrar por nombre
+        // Filtrar por nombre o display_name
         if ($request->has('search') && !empty($request->query('search'))) {
             $searchTerm = $request->query('search');
             $users->where(function($query) use ($searchTerm) {
                 $query->where('name', 'LIKE', '%' . $searchTerm . '%')
+                      ->orWhere('display_name', 'LIKE', '%' . $searchTerm . '%')
                       ->orWhere('email', 'LIKE', '%' . $searchTerm . '%');
             });
         }
