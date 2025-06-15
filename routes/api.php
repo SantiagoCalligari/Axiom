@@ -112,9 +112,9 @@ Route::middleware('auth:api')->group(function () {
 
     // Rutas para comentarios
     Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments', [CommentController::class, 'store']);
-    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments/{comment}', [CommentController::class, 'update']);
-    Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments/{comment}', [CommentController::class, 'destroy']);
-    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comments/{comment}/vote', [CommentController::class, 'vote']);
+    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}', [CommentController::class, 'update']);
+    Route::delete('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}', [CommentController::class, 'destroy']);
+    Route::post('/university/{university}/career/{career}/subject/{subject}/exam/{exam}/comment/{comment}/vote', [CommentController::class, 'vote']);
 
     // Rutas para resoluciones (una por examen)
     // Solo los profesores pueden gestionar las resoluciones
@@ -129,7 +129,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/admin/roles/assignable', [\App\Http\Controllers\RoleManagementController::class, 'assignableRoles']);
     Route::get('/admin/users', [UserController::class, 'index']);
 
-    
+
     Route::get('/subscriptions', [SubscriptionController::class, 'getUserSubscriptions']);
     Route::get('/admin/exams/pending', [App\Http\Controllers\Admin\ExamController::class, 'pending']);
     Route::get('/admin/exams/{exam}', [App\Http\Controllers\Admin\ExamController::class, 'show']);
