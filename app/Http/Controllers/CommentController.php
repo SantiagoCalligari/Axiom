@@ -152,7 +152,7 @@ class CommentController extends Controller
 
         // Load relationships needed for the resource, including nested replies
         $comment->load([
-            'user:id,name', // Load only id and name
+            'user:id,display_name, name', // Load only id and name
             'attachments', // Load attachments for the new comment
             // If the new comment is a reply, load its user and attachments
             'replies' => function ($query) {
@@ -209,7 +209,7 @@ class CommentController extends Controller
 
         // Load relationships needed for the resource, including nested replies
         $comment->load([
-            'user:id,name',
+            'user:id,display_name, name',
             'attachments',
             'replies' => function ($query) {
                 $query->with(['user:id,name', 'attachments', 'replies']) // Add 'replies' if needed
