@@ -49,7 +49,7 @@ class CommentController extends Controller
                 'attachments', // Load attachments for top-level comments
                 // Recursively load replies with their users and attachments
                 'replies' => function ($query) {
-                    $query->with(['user:id,name', 'attachments', 'replies']) // Add 'replies' here for nested replies if depth > 1 is needed
+                    $query->with(['user:id,display_name,name', 'attachments', 'replies']) // Add 'replies' here for nested replies if depth > 1 is needed
                         ->orderBy('created_at', 'asc'); // Sort replies by creation date
                 }
             ]);
@@ -152,11 +152,11 @@ class CommentController extends Controller
 
         // Load relationships needed for the resource, including nested replies
         $comment->load([
-            'user:id,display_name, name', // Load only id and name
+            'user:id,display_name,name', // Load only id and name
             'attachments', // Load attachments for the new comment
             // If the new comment is a reply, load its user and attachments
             'replies' => function ($query) {
-                $query->with(['user:id,name', 'attachments', 'replies']) // Add 'replies' if needed
+                $query->with(['user:id,display_name,name', 'attachments', 'replies']) // Add 'replies' if needed
                     ->orderBy('created_at', 'asc');
             }
         ]);
@@ -212,7 +212,7 @@ class CommentController extends Controller
             'user:id,display_name,name',
             'attachments',
             'replies' => function ($query) {
-                $query->with(['user:id,name', 'attachments', 'replies']) // Add 'replies' if needed
+                $query->with(['user:id,display_name,name', 'attachments', 'replies']) // Add 'replies' if needed
                     ->orderBy('created_at', 'asc');
             }
         ]);
